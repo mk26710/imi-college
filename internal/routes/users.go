@@ -5,12 +5,12 @@ import (
 	"errors"
 	"imi/college/internal/models"
 	"imi/college/internal/responses"
+	"imi/college/internal/util"
 	"net/http"
-
-	"golang.org/x/crypto/bcrypt"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -32,7 +32,7 @@ type NewUserBody struct {
 }
 
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	if r.Header.Get("Content-Type") != "application/json" {
+	if !util.HasJsonContentType(r) {
 		responses.Error(w, "Content Type is not application/json", http.StatusUnsupportedMediaType)
 		return
 	}
@@ -43,12 +43,14 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 	decoder.DisallowUnknownFields()
 
+	defer r.Body.Close()
+
 	err := decoder.Decode(&body)
 	if err != nil {
 		if errors.As(err, &unmarshallErr) {
-			responses.Error(w, "Bad Request. Wrong Type provided for field "+unmarshallErr.Field, http.StatusBadRequest)
+			responses.Error(w, "Wrong Type provided for field "+unmarshallErr.Field, http.StatusBadRequest)
 		} else {
-			responses.Error(w, "Bad Request "+err.Error(), http.StatusBadRequest)
+			responses.Error(w, err.Error(), http.StatusBadRequest)
 		}
 		return
 	}
@@ -88,16 +90,16 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if errors.Is(txErr, gorm.ErrDuplicatedKey) {
-		http.Error(w, "This email is already taken", http.StatusBadRequest)
+		responses.Error(w, "This email is already taken.", http.StatusBadRequest)
 		return
 	} else if txErr != nil {
-		http.Error(w, "Something went wrong, try again later", http.StatusInternalServerError)
+		responses.Error(w, "Something went wrong, try again later.", http.StatusInternalServerError)
 		return
 	}
 
 	responseJson, err := json.Marshal(user)
 	if err != nil {
-		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		responses.Error(w, "Internal Server Error.", http.StatusInternalServerError)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -108,30 +110,30 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (h *UserHandler) ReadUser(w http.ResponseWriter, r *http.Request) {
 	pathValueID := r.PathValue("id")
 	if len(pathValueID) == 0 {
-		http.Error(w, "User ID path parameter is not found.", http.StatusInternalServerError)
+		responses.Error(w, "User ID path parameter is not found.", http.StatusInternalServerError)
 		return
 	}
 
 	id, parseErr := uuid.Parse(pathValueID)
 	if parseErr != nil {
-		http.Error(w, "Make sure you have request a correct user ID.", http.StatusBadRequest)
+		responses.Error(w, "Make sure you have requested a correct user ID.", http.StatusBadRequest)
 		return
 	}
 
 	var user models.User
 	if err := h.db.Where(&models.User{ID: id}).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			http.Error(w, "User not found.", http.StatusNotFound)
+			responses.Error(w, "User not found.", http.StatusNotFound)
 			return
 		}
 
-		http.Error(w, "Error while reading requested user.", http.StatusInternalServerError)
+		responses.Error(w, "Error while reading requested user.", http.StatusInternalServerError)
 		return
 	}
 
 	resJson, marshallErr := json.Marshal(user)
 	if marshallErr != nil {
-		http.Error(w, "Error while converting user object to json.", http.StatusInternalServerError)
+		responses.Error(w, "Error while converting user object to json.", http.StatusInternalServerError)
 		return
 	}
 
