@@ -23,7 +23,7 @@ func main() {
 		log.Fatalln("Couldn't connect to postgres database")
 	}
 
-	db.AutoMigrate(&models.User{}, &models.Password{})
+	db.AutoMigrate(&models.User{}, &models.Password{}, &models.UserSession{})
 
 	mux := http.NewServeMux()
 	stack := middleware.CreateStack(
