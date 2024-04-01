@@ -7,21 +7,30 @@ import (
 )
 
 type User struct {
-	ID         uuid.UUID  `gorm:"primaryKey;type:uuid;default:gen_random_uuid()" json:"id"`
-	CreatedAt  time.Time  `gorm:"default:now()" json:"created_at"`
-	UpdatedAt  time.Time  `gorm:"default:now()" json:"updated_at"`
-	Email      string     `gorm:"uniqueIndex" json:"email"`
-	IsVerified bool       `gorm:"default:false" json:"isVerified"`
+	ID         uuid.UUID  `gorm:"primaryKey;type:uuid;default:gen_random_uuid();not null;" json:"id"`
+	UserName   string     `gorm:"uniqueIndex;not null;" json:"username"`
+	Email      string     `gorm:"uniqueIndex;not null;" json:"email"`
+	IsVerified bool       `gorm:"default:false;not null;" json:"isVerified"`
 	Tel        *string    `json:"tel"`
-	FirstName  string     `json:"firstName"`
-	MiddleName string     `json:"middleName"`
-	LastName   string     `json:"lastName"`
+	FirstName  string     `gorm:"not null;" json:"firstName"`
+	MiddleName string     `gorm:"not null;" json:"middleName"`
+	LastName   string     `gorm:"not null;" json:"lastName"`
 	Birthday   *time.Time `json:"birthday"`
+	CreatedAt  time.Time  `gorm:"default:now();not null;" json:"createdAt"`
+	UpdatedAt  time.Time  `gorm:"default:now();not null;" json:"updatedAt"`
 }
 
 type Password struct {
-	ID     uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
-	UserID uuid.UUID
-	User   User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
-	Hash   string
+	ID     uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid();not null;"`
+	User   User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserID uuid.UUID `gorm:"uniqueIndex;not null;"`
+	Hash   string    `gorm:"not null;"`
+}
+
+type UserSession struct {
+	ID        uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid();not null;" json:"id"`
+	User      User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null;" json:"-"`
+	UserID    uuid.UUID `gorm:"not null;" json:"userId"`
+	ExpiresAt time.Time `gorm:"default:now() + interval '2 days';not null;" json:"expiresAt"`
+	CreatedAt time.Time `gorm:"default:now();not null;" json:"createdAt"`
 }
