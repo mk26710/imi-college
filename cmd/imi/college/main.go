@@ -31,9 +31,12 @@ func main() {
 	)
 
 	users := routes.NewUserHandler(db)
+	sessions := routes.NewSessionHandler(db)
 
 	mux.HandleFunc("POST /users", users.CreateUser)
 	mux.HandleFunc("GET /users/{id}", users.ReadUser)
+
+	mux.HandleFunc("POST /session", sessions.CreateSession)
 
 	server := http.Server{
 		Addr:    "127.0.0.1:8080",
