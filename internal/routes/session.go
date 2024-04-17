@@ -5,6 +5,7 @@ import (
 	"errors"
 	"imi/college/internal/checks"
 	"imi/college/internal/models"
+	"imi/college/internal/security"
 	"imi/college/internal/writers"
 	"net/http"
 
@@ -79,7 +80,13 @@ func (h *SessionHandler) CreateSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userSession := models.UserSession{User: user}
+	newToken, err := security.NewToken(security.DEFAULT_TOKEN_SIZE)
+	if err != nil {
+		writers.Error(w, "Unexpected errro while autheticating", http.StatusInternalServerError)
+		return
+	}
+
+	userSession := models.UserSession{User: user, Token: newToken}
 
 	if err := h.db.Create(&userSession).Error; err != nil {
 		writers.Error(w, "Could not create a new session", http.StatusInternalServerError)
