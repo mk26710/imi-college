@@ -33,4 +33,5 @@ type UserSession struct {
 	UserID    uuid.UUID `gorm:"not null;" json:"userId"`
 	ExpiresAt time.Time `gorm:"default:now() + interval '2 days';not null;" json:"expiresAt"`
 	CreatedAt time.Time `gorm:"default:now();not null;" json:"createdAt"`
+	Token     string    `gorm:"uniqueIndex;not null;" json:"token"`
 }
