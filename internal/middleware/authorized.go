@@ -12,7 +12,7 @@ import (
 
 type userKey string
 
-const UserKey userKey = userKey("user")
+const SessionKey userKey = userKey("user")
 
 func writeError(w http.ResponseWriter) {
 	writers.Error(w, "Forbidden", http.StatusForbidden)
@@ -51,7 +51,7 @@ func EnsureUserSession(db *gorm.DB) func(next http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), UserKey, session)
+			ctx := context.WithValue(r.Context(), SessionKey, session)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
