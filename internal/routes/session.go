@@ -19,7 +19,7 @@ type SessionHandler struct {
 }
 
 func NewSessionHandler(db *gorm.DB) *SessionHandler {
-	return &SessionHandler{db: db}
+	return &SessionHandler{db}
 }
 
 type NewSessionBody struct {

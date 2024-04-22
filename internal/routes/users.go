@@ -19,7 +19,7 @@ type UserHandler struct {
 }
 
 func NewUserHandler(db *gorm.DB) *UserHandler {
-	return &UserHandler{db: db}
+	return &UserHandler{db}
 }
 
 type NewUserBody struct {
