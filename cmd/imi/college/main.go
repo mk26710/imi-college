@@ -18,12 +18,14 @@ import (
 type RoutesHandlers struct {
 	User    *routes.UserHandler
 	Session *routes.SessionHandler
+	File    *routes.FilesHandler
 }
 
 func CreateHandlers(db *gorm.DB) RoutesHandlers {
 	return RoutesHandlers{
 		User:    routes.NewUserHandler(db),
 		Session: routes.NewSessionHandler(db),
+		File:    routes.NewFilesHandler(db),
 	}
 }
 
@@ -56,6 +58,7 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(mw.EnsureUserSession(db))
 		r.Get("/users/{id}", h.User.ReadUser)
+		r.Post("/upload", h.File.CreateFile)
 	})
 
 	srv := http.Server{
