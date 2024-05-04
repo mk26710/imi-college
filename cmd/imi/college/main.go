@@ -62,11 +62,11 @@ func main() {
 	})
 
 	srv := http.Server{
-		Addr:    "127.0.0.1:8080",
+		Addr:    os.Getenv("ADDR"),
 		Handler: r,
 	}
 
-	log.Println("Lisetning on 8080")
+	log.Printf("Lisetning on http://%s\n", os.Getenv("ADDR"))
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
