@@ -46,7 +46,7 @@ func EnsureUserSession(db *gorm.DB) func(next http.Handler) http.Handler {
 
 			var session models.UserSession
 
-			if err := db.Where(&models.UserSession{Token: providedToken}).First(&session).Error; err != nil {
+			if err := db.Where(&models.UserSession{Token: providedToken}).Preload("User").First(&session).Error; err != nil {
 				writeError(w)
 				return
 			}
