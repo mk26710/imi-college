@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 )
 
-const DEFAULT_TOKEN_SIZE int = 96
+const DEFAULT_TOKEN_SIZE int = 72
 
 func NewToken(size int) (string, error) {
 	bytes := make([]byte, size)
