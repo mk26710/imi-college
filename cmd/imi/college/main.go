@@ -16,16 +16,14 @@ import (
 )
 
 type RoutesHandlers struct {
-	User    *routes.UserHandler
-	Session *routes.SessionHandler
-	File    *routes.FilesHandler
+	User *routes.UserHandler
+	File *routes.FilesHandler
 }
 
 func CreateHandlers(db *gorm.DB) RoutesHandlers {
 	return RoutesHandlers{
-		User:    routes.NewUserHandler(db),
-		Session: routes.NewSessionHandler(db),
-		File:    routes.NewFilesHandler(db),
+		User: routes.NewUserHandler(db),
+		File: routes.NewFilesHandler(db),
 	}
 }
 
@@ -51,7 +49,7 @@ func main() {
 	// Public routes group
 	r.Group(func(r chi.Router) {
 		r.Post("/users", h.User.CreateUser)
-		r.Post("/session", h.Session.CreateSession)
+		r.Post("/users/token", h.User.CreateUserToken)
 	})
 
 	// Authentication required
