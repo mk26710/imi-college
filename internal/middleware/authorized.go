@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"context"
+	"imi/college/internal/contextkeys"
+	"imi/college/internal/handlers"
 	"imi/college/internal/models"
 	"imi/college/internal/writers"
 	"net/http"
@@ -10,12 +12,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type userKey string
-
-const SessionKey userKey = userKey("user")
-
 func writeError(w http.ResponseWriter) {
-	writers.Error(w, "Forbidden", http.StatusForbidden)
+	writers.Json(w, http.StatusForbidden, handlers.Forbidden())
 }
 
 func EnsureUserSession(db *gorm.DB) func(next http.Handler) http.Handler {
@@ -51,7 +49,7 @@ func EnsureUserSession(db *gorm.DB) func(next http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), SessionKey, session)
+			ctx := context.WithValue(r.Context(), contextkeys.TokenKey, session)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
