@@ -1,8 +1,8 @@
-package routes
+package handlers
 
 import (
 	"fmt"
-	"imi/college/internal/middleware"
+	"imi/college/internal/contextkeys"
 	"imi/college/internal/models"
 	"imi/college/internal/writers"
 	"io"
@@ -20,11 +20,10 @@ func NewFilesHandler(db *gorm.DB) *FilesHandler {
 	return &FilesHandler{db}
 }
 
-func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) {
-	session, ok := r.Context().Value(middleware.SessionKey).(models.UserSession)
+func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error {
+	session, ok := r.Context().Value(contextkeys.TokenKey).(models.UserToken)
 	if !ok {
-		writers.Error(w, "Unable to obtain session data.", http.StatusInternalServerError)
-		return
+		return fmt.Errorf("unable to obtain session data")
 	}
 
 	defer r.Body.Close()
@@ -35,12 +34,10 @@ func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) {
 	attachment, handler, err := r.FormFile("attachment")
 	if err != nil {
 		if _, ok := err.(*http.MaxBytesError); ok {
-			writers.Error(w, "Attachment exceeds file size limit.", http.StatusRequestEntityTooLarge)
-			return
+			return TooLarge()
 		}
 
-		writers.Error(w, "Attachment could not be read.", http.StatusInternalServerError)
-		return
+		return err
 	}
 
 	defer attachment.Close()
@@ -60,18 +57,18 @@ func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) {
 
 	out, err := os.Create(attachmentPath)
 	if err != nil {
-		writers.Error(w, "Could not save uploaded file.", http.StatusInternalServerError)
-		return
+		return err
 	}
 
 	defer out.Close()
 
 	_, err = io.Copy(out, attachment)
 	if err != nil {
-		writers.Error(w, "Could not copy the uploaded file.", http.StatusInternalServerError)
-		return
+		return err
 	}
 
 	// TODO: create sensible response
 	writers.Json(w, 200, map[string]any{"success": true})
+
+	return nil
 }

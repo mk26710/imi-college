@@ -1,4 +1,4 @@
-package routes
+package handlers
 
 import (
 	"encoding/json"
@@ -184,7 +184,7 @@ func (h *UserHandler) CreateUserToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userToken := models.UserSession{User: user, Token: newToken}
+	userToken := models.UserToken{User: user, Token: newToken}
 
 	if err := h.db.Create(&userToken).Error; err != nil {
 		writers.Error(w, "Could not create a new token.", http.StatusInternalServerError)

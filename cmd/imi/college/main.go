@@ -1,9 +1,9 @@
 package main
 
 import (
+	"imi/college/internal/handlers"
 	mw "imi/college/internal/middleware"
 	"imi/college/internal/models"
-	"imi/college/internal/routes"
 	"log"
 	"net/http"
 	"os"
@@ -16,14 +16,14 @@ import (
 )
 
 type RoutesHandlers struct {
-	User *routes.UserHandler
-	File *routes.FilesHandler
+	User *handlers.UserHandler
+	File *handlers.FilesHandler
 }
 
 func CreateHandlers(db *gorm.DB) RoutesHandlers {
 	return RoutesHandlers{
-		User: routes.NewUserHandler(db),
-		File: routes.NewFilesHandler(db),
+		User: handlers.NewUserHandler(db),
+		File: handlers.NewFilesHandler(db),
 	}
 }
 
@@ -56,7 +56,7 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(mw.EnsureUserSession(db))
 		r.Get("/users/{id}", h.User.ReadUser)
-		r.Post("/upload", h.File.CreateFile)
+		r.Post("/upload", handlers.APIHandler(h.File.CreateFile))
 	})
 
 	srv := http.Server{
