@@ -5,12 +5,14 @@ import (
 	"log/slog"
 	"net/http"
 	"strings"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type APIError struct {
-	Status  int   `json:"status"`
-	Message any   `json:"message"`
-	Details []any `json:"details,omitempty"`
+	Status  int `json:"status"`
+	Message any `json:"message"`
+	Details any `json:"details,omitempty"`
 
 	cause error `json:"-"`
 }
@@ -93,5 +95,29 @@ func InvalidCredentials(cause error) APIError {
 		Status:  http.StatusUnauthorized,
 		Message: "Invalid credentials",
 		cause:   cause,
+	}
+}
+
+func InvalidRequest(cause validator.ValidationErrors) APIError {
+	type errEntry struct {
+		Field     string `json:"field"`
+		ActualTag string `json:"tag"`
+		Param     string `json:"param,omitempty"`
+	}
+
+	m := make([]errEntry, 0)
+
+	for _, err := range cause {
+		m = append(m, errEntry{
+			Field:     err.Field(),
+			ActualTag: err.ActualTag(),
+			Param:     err.Param(),
+		})
+	}
+
+	return APIError{
+		Status:  http.StatusBadRequest,
+		Message: "Request body is invalid",
+		Details: m,
 	}
 }
