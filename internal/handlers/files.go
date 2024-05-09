@@ -21,7 +21,7 @@ func NewFilesHandler(db *gorm.DB) *FilesHandler {
 }
 
 func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error {
-	session, ok := r.Context().Value(contextkeys.TokenKey).(models.UserToken)
+	token, ok := r.Context().Value(contextkeys.TokenKey).(models.UserToken)
 	if !ok {
 		return fmt.Errorf("unable to obtain session data")
 	}
@@ -43,7 +43,7 @@ func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error 
 	defer attachment.Close()
 
 	baseDir := ".file-uploads"
-	userDir := fmt.Sprintf("%s/%s", baseDir, session.UserID)
+	userDir := fmt.Sprintf("%s/%s", baseDir, token.UserID)
 
 	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
 		os.Mkdir(baseDir, 0755)
