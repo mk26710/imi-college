@@ -13,7 +13,6 @@ func Json(w http.ResponseWriter, status int, data any) error {
 	err := enc.Encode(data)
 
 	if err != nil {
-		Error(w, "Error during data encoding.", http.StatusInternalServerError)
 		return err
 	}
 
