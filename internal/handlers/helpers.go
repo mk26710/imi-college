@@ -11,18 +11,24 @@ type APIError struct {
 	Status  int   `json:"status"`
 	Message any   `json:"message"`
 	Details []any `json:"details,omitempty"`
+
+	cause error `json:"-"`
 }
 
 func (e APIError) Error() string {
 	var msg string
 
-	switch message := e.Message.(type) {
-	case string:
-		msg = message
-	case []string:
-		msg = strings.Join(message, "\n")
-	default:
-		msg = ""
+	if e.cause == nil {
+		switch message := e.Message.(type) {
+		case string:
+			msg = message
+		case []string:
+			msg = strings.Join(message, "\n")
+		default:
+			msg = ""
+		}
+	} else {
+		msg = e.cause.Error()
 	}
 
 	return msg
@@ -65,5 +71,27 @@ func TooLarge() APIError {
 	return APIError{
 		Status:  http.StatusRequestEntityTooLarge,
 		Message: "Request entity is too large",
+	}
+}
+
+func BadRequest(reason string) APIError {
+	return APIError{
+		Status:  http.StatusBadRequest,
+		Message: reason,
+	}
+}
+
+func NotFound() APIError {
+	return APIError{
+		Status:  http.StatusNotFound,
+		Message: "Not found",
+	}
+}
+
+func InvalidCredentials(cause error) APIError {
+	return APIError{
+		Status:  http.StatusUnauthorized,
+		Message: "Invalid credentials",
+		cause:   cause,
 	}
 }

@@ -48,14 +48,14 @@ func main() {
 
 	// Public routes group
 	r.Group(func(r chi.Router) {
-		r.Post("/users", h.User.CreateUser)
-		r.Post("/users/token", h.User.CreateUserToken)
+		r.Post("/users", handlers.APIHandler(h.User.CreateUser))
+		r.Post("/users/token", handlers.APIHandler(h.User.CreateUserToken))
 	})
 
 	// Authentication required
 	r.Group(func(r chi.Router) {
 		r.Use(mw.EnsureUserSession(db))
-		r.Get("/users/{id}", h.User.ReadUser)
+		r.Get("/users/{id}", handlers.APIHandler(h.User.ReadUser))
 		r.Post("/upload", handlers.APIHandler(h.File.CreateFile))
 	})
 

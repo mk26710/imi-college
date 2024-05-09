@@ -33,10 +33,9 @@ type NewUserBody struct {
 	Password   string `json:"password" validate:"required,gte=6,lte=72"`
 }
 
-func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 	if !checks.IsJson(r) {
-		writers.Error(w, "Content Type is not application/json", http.StatusUnsupportedMediaType)
-		return
+		return MalformedJSON()
 	}
 
 	var body NewUserBody
@@ -47,15 +46,12 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&body); err != nil {
-		writers.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return MalformedJSON()
 	}
 
 	validate := validator.New()
-	validationErr := validate.Struct(body)
-	if validationErr != nil {
-		writers.Error(w, "Error during validation", http.StatusBadRequest)
-		return
+	if err := validate.Struct(body); err != nil {
+		return err
 	}
 
 	var user models.User
@@ -87,42 +83,36 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if errors.Is(txErr, gorm.ErrDuplicatedKey) {
-		writers.Error(w, "This email or username is already taken.", http.StatusBadRequest)
-		return
+		return BadRequest("This email or username is already taken")
 	} else if txErr != nil {
-		writers.Error(w, "Something went wrong, try again later.", http.StatusInternalServerError)
-		return
+		return txErr
 	}
 
-	writers.Json(w, http.StatusOK, user)
+	return writers.Json(w, http.StatusOK, user)
 }
 
-func (h *UserHandler) ReadUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) ReadUser(w http.ResponseWriter, r *http.Request) error {
 	pathValueID := r.PathValue("id")
 	if len(pathValueID) == 0 {
-		writers.Error(w, "User ID path parameter is not found.", http.StatusInternalServerError)
-		return
+		return BadRequest("User ID path parameter nto found")
 	}
 
 	id, err := uuid.Parse(pathValueID)
 	if err != nil {
-		writers.Error(w, "Make sure you have requested a correct user ID.", http.StatusBadRequest)
-		return
+		return BadRequest("Provided user ID is incorrect.")
 	}
 
 	var user models.User
 
 	if err := h.db.Where(&models.User{ID: id}).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			writers.Error(w, "User not found.", http.StatusNotFound)
-			return
+			return NotFound()
 		}
 
-		writers.Error(w, "Error while reading requested user.", http.StatusInternalServerError)
-		return
+		return err
 	}
 
-	writers.Json(w, http.StatusOK, user)
+	return writers.Json(w, http.StatusOK, user)
 }
 
 type NewSessionBody struct {
@@ -130,10 +120,9 @@ type NewSessionBody struct {
 	Password string `json:"password" validate:"required,gte=6,lte=72"`
 }
 
-func (h *UserHandler) CreateUserToken(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) CreateUserToken(w http.ResponseWriter, r *http.Request) error {
 	if !checks.IsJson(r) {
-		writers.Error(w, "This endpoint requires JSON content!", http.StatusUnsupportedMediaType)
-		return
+		return MalformedJSON()
 	}
 
 	var body NewSessionBody
@@ -144,52 +133,47 @@ func (h *UserHandler) CreateUserToken(w http.ResponseWriter, r *http.Request) {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&body); err != nil {
-		writers.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return err
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(body); err != nil {
-		writers.Error(w, "Invalid request body.", http.StatusBadRequest)
-		return
+		return MalformedJSON()
 	}
 
 	var user models.User
 
 	if err := h.db.Where(&models.User{UserName: body.UserName}).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			writers.Error(w, "User not found.", http.StatusNotFound)
-			return
+			return InvalidCredentials(err)
 		}
 
-		writers.Error(w, "Unexpected error while searching for user.", http.StatusInternalServerError)
-		return
+		return err
 	}
 
 	var password models.Password
 
 	if err := h.db.Where(&models.Password{User: user}).First(&password).Error; err != nil {
-		writers.Error(w, "Unexpected error while searching for user info.", http.StatusInternalServerError)
-		return
+		return err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(password.Hash), []byte(body.Password)); err != nil {
-		writers.Error(w, "Wrong username or password.", http.StatusUnauthorized)
-		return
+		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
+			return InvalidCredentials(err)
+		}
+		return err
 	}
 
 	newToken, err := security.NewToken(security.DEFAULT_TOKEN_SIZE)
 	if err != nil {
-		writers.Error(w, "Unexpected error while authenticating.", http.StatusInternalServerError)
-		return
+		return err
 	}
 
 	userToken := models.UserToken{User: user, Token: newToken}
 
 	if err := h.db.Create(&userToken).Error; err != nil {
-		writers.Error(w, "Could not create a new token.", http.StatusInternalServerError)
-		return
+		return err
 	}
 
-	writers.Json(w, http.StatusOK, userToken)
+	return writers.Json(w, http.StatusOK, userToken)
 }
