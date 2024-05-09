@@ -50,7 +50,11 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	validate := validator.New()
-	if err := validate.Struct(body); err != nil {
+	err := validate.Struct(body)
+
+	if validationErr, ok := err.(validator.ValidationErrors); ok {
+		return InvalidRequest(validationErr)
+	} else if err != nil {
 		return err
 	}
 
@@ -137,8 +141,12 @@ func (h *UserHandler) CreateUserToken(w http.ResponseWriter, r *http.Request) er
 	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
-	if err := validate.Struct(body); err != nil {
-		return MalformedJSON()
+	err := validate.Struct(body)
+
+	if validationErr, ok := err.(validator.ValidationErrors); ok {
+		return InvalidRequest(validationErr)
+	} else if err != nil {
+		return err
 	}
 
 	var user models.User
