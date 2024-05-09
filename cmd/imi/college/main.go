@@ -37,7 +37,7 @@ func main() {
 		log.Fatalln("Couldn't connect to postgres database")
 	}
 
-	db.AutoMigrate(&models.User{}, &models.Password{}, &models.UserSession{})
+	db.AutoMigrate(&models.User{}, &models.Password{}, &models.UserToken{})
 
 	r := chi.NewRouter()
 	r.Use(chimw.Logger)

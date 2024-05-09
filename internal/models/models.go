@@ -34,7 +34,7 @@ type Password struct {
 	Hash   string    `gorm:"not null;"`
 }
 
-type UserSession struct {
+type UserToken struct {
 	ID        uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid();not null;" json:"id"`
 	User      User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null;" json:"-"`
 	UserID    uuid.UUID `gorm:"not null;" json:"userId"`
