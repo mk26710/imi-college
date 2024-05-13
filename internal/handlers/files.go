@@ -2,8 +2,7 @@ package handlers
 
 import (
 	"fmt"
-	"imi/college/internal/contextkeys"
-	"imi/college/internal/models"
+	"imi/college/internal/ctx"
 	"imi/college/internal/writers"
 	"io"
 	"mime/multipart"
@@ -80,9 +79,9 @@ type FilesHandler struct {
 // This handler requires a request body to be a form
 // attachment - a file user attaches
 func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error {
-	token, ok := r.Context().Value(contextkeys.TokenKey).(models.UserToken)
-	if !ok {
-		return fmt.Errorf("unable to obtain session data")
+	user, err := ctx.GetUser(r)
+	if err != nil {
+		return err
 	}
 
 	defer r.Body.Close()
@@ -109,7 +108,7 @@ func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error 
 		return MalformedForm()
 	}
 
-	if err := SaveUserImage(attachment, token.UserID, handler.Filename); err != nil {
+	if err := SaveUserImage(attachment, user.ID, handler.Filename); err != nil {
 		return err
 	}
 

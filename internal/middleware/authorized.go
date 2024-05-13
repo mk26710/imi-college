@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"context"
-	"imi/college/internal/contextkeys"
+	"imi/college/internal/ctx"
 	"imi/college/internal/handlers"
 	"imi/college/internal/models"
 	"imi/college/internal/writers"
@@ -49,7 +49,7 @@ func EnsureUserSession(db *gorm.DB) func(next http.Handler) http.Handler {
 				return
 			}
 
-			ctx := context.WithValue(r.Context(), contextkeys.TokenKey, session)
+			ctx := context.WithValue(r.Context(), ctx.TokenKey, session)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
