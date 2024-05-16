@@ -55,6 +55,13 @@ func APIHandler(h APIFunc) http.HandlerFunc {
 	return fn
 }
 
+func UnprocessableEntity() APIError {
+	return APIError{
+		Status:  http.StatusUnprocessableEntity,
+		Message: "Request body contains unprocessable entity",
+	}
+}
+
 func MalformedForm() APIError {
 	return APIError{
 		Status:  http.StatusUnprocessableEntity,
