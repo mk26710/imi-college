@@ -4,7 +4,27 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
+
+func AutoMigrate(db *gorm.DB) error {
+	return db.AutoMigrate(
+		&User{},
+		&Password{},
+		&UserToken{},
+		&UserIdentity{},
+		&UserAddress{},
+		&Application{},
+		&DictAppState{},
+		&DictEduDocType{},
+		&DictIdDocType{},
+		&DictEduLevel{},
+		&DictCountry{},
+		&DictRegion{},
+		&DictTownType{},
+		&EduDoc{},
+	)
+}
 
 const (
 	RoleRegular string = "regular"
@@ -13,56 +33,116 @@ const (
 )
 
 type User struct {
-	ID         uuid.UUID  `gorm:"primaryKey;type:uuid;default:gen_random_uuid();not null;" json:"id"`
-	UserName   string     `gorm:"uniqueIndex;not null;" json:"username"`
-	Email      string     `gorm:"uniqueIndex;not null;" json:"email"`
-	IsVerified bool       `gorm:"default:false;not null;" json:"isVerified"`
-	Role       string     `gorm:"default:'regular';not null;" json:"role"`
-	Tel        *string    `json:"tel"`
-	FirstName  string     `gorm:"not null;" json:"firstName"`
-	MiddleName string     `gorm:"not null;" json:"middleName"`
-	LastName   string     `gorm:"not null;" json:"lastName"`
-	Birthday   *time.Time `json:"birthday"`
-	CreatedAt  time.Time  `gorm:"default:now();not null;" json:"createdAt"`
-	UpdatedAt  time.Time  `gorm:"default:now();not null;" json:"updatedAt"`
+	ID         uuid.UUID `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	CreatedAt  time.Time `gorm:"not null;default:now();" json:"createdAt"`
+	UpdatedAt  time.Time `gorm:"not null;default:now();" json:"updatedAt"`
+	UserName   string    `gorm:"not null;uniqueIndex;" json:"username"`
+	Email      string    `gorm:"not null;uniqueIndex;" json:"email"`
+	IsVerified bool      `gorm:"not null;default:false;" json:"isVerified"`
+	Role       string    `gorm:"not null;default:'regular';" json:"role"`
+	Tel        *string   `json:"tel"`
 }
 
 type Password struct {
-	ID     uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid();not null;"`
-	User   User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	UserID uuid.UUID `gorm:"uniqueIndex;not null;"`
+	ID     uuid.UUID `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();"`
+	User   User      `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	UserID uuid.UUID `gorm:"not null;uniqueIndex;"`
 	Hash   string    `gorm:"not null;"`
 }
 
 type UserToken struct {
-	ID        uuid.UUID `gorm:"primaryKey;type:uuid;default:gen_random_uuid();not null;" json:"id"`
-	User      User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null;" json:"-"`
+	ID        uuid.UUID `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	User      User      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	UserID    uuid.UUID `gorm:"not null;" json:"userId"`
-	ExpiresAt time.Time `gorm:"default:now() + interval '2 days';not null;" json:"expiresAt"`
-	CreatedAt time.Time `gorm:"default:now();not null;" json:"createdAt"`
-	Token     string    `gorm:"uniqueIndex;not null;" json:"token"`
+	CreatedAt time.Time `gorm:"not null;default:now();" json:"createdAt"`
+	ExpiresAt time.Time `gorm:"not null;default:now() + interval '2 days';" json:"expiresAt"`
+	Token     string    `gorm:"not null;uniqueIndex;" json:"token"`
 }
 
-type DocumentType uint8
+type UserIdentity struct {
+	ID         uuid.UUID  `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	User       User       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	UserID     uuid.UUID  `gorm:"not null;uniqueIndex;" json:"userId"`
+	FirstName  string     `gorm:"not null;" json:"firstName"`
+	MiddleName string     `gorm:"not null;" json:"middleName"`
+	LastName   string     `gorm:"not null;" json:"lastName"`
+	Birthday   *time.Time `json:"birthday"`
+}
 
-const (
-	DocumentPassport              DocumentType = 0
-	DocumentInternationalPassport DocumentType = 1
-	DocumentForeignPassport       DocumentType = 2
-	DocumentBirthCertificate      DocumentType = 3
-	DocumentMilitaryCard          DocumentType = 4
-	DocumentOther                 DocumentType = 5
-)
+type UserAddress struct {
+	ID         uuid.UUID    `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	Region     DictRegion   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	RegionID   int          `gorm:"not null;" json:"regionId"`
+	TownType   DictTownType `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	TownTypeID int          `gorm:"not null;" json:"townTypeId"`
+	Town       string       `gorm:"not null;" json:"town"`
+	PostCode   string       `gorm:"not null;" json:"postCode"`
+}
 
-type UserDocFile struct {
-	ID           uuid.UUID    `gorm:"primaryKey;type:uuid;default:gen_random_uuid();not null;" json:"id"`
-	User         User         `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;not null;" json:"-"`
-	UserID       uuid.UUID    `gorm:"not null;index:user_id__type_uindex,unique;" json:"userId"`
-	Type         DocumentType `gorm:"not null;index:user_id__type_uindex,unique;" json:"type"`
-	Series       string       `gorm:"not null;" json:"series"`
-	Number       string       `gorm:"not null;" json:"number"`
-	Issuer       string       `gorm:"not null;" json:"issuer"`
-	IssuedAt     time.Time    `gorm:"not null;" json:"issuedAt"`
-	DivisionCode string       `gorm:"not null;" json:"divisionCode"`
-	Country      string       `gorm:"not null;" json:"country"`
+type Application struct {
+	ID        uuid.UUID    `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	User      User         `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	UserID    uuid.UUID    `json:"userId"`
+	State     DictAppState `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	StateID   int          `gorm:"not null;" json:"stateId"`
+	CreatedAt time.Time    `gorm:"not null;default:now();" json:"createdAt"`
+}
+
+type DictAppState struct {
+	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
+}
+
+type DictEduDocType struct {
+	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
+}
+
+type DictIdDocType struct {
+	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
+}
+
+type DictEduLevel struct {
+	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
+}
+
+type DictCountry struct {
+	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
+}
+
+type DictRegion struct {
+	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	ValueID      int     `gorm:"not null;"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
+}
+
+type DictTownType struct {
+	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
+}
+
+type EduDoc struct {
+	ID             uuid.UUID      `gorm:"not null;type:uuid;default:gen_random_uuid();" json:"id"`
+	CreatedAt      time.Time      `gorm:"not null;default:now();" json:"createdAt"`
+	User           User           `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	UserID         uuid.UUID      `gorm:"not null;type:uuid;" json:"userId"`
+	Type           DictEduDocType `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	TypeID         int            `gorm:"not null;" json:"typeId"`
+	Series         string         `gorm:"not null;" json:"series"`
+	Number         string         `gorm:"not null;" json:"number"`
+	Issuer         string         `gorm:"not null;" json:"issuer"`
+	IssuedAt       time.Time      `gorm:"not null;" json:"issuedAt"`
+	GradYear       uint8          `gorm:"not null;" json:"gradYear"`
+	IssuerRegion   DictRegion     `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	IssuerRegionID int            `gorm:"not null;" json:"issuerRegionId"`
 }

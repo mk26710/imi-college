@@ -62,15 +62,21 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 
 	txErr := h.db.Transaction(func(tx *gorm.DB) error {
 		user = models.User{
-			Email:      body.Email,
-			UserName:   body.UserName,
-			Tel:        &body.Tel,
+			Email:    body.Email,
+			UserName: body.UserName,
+			Tel:      &body.Tel,
+		}
+		if err := tx.Create(&user).Error; err != nil {
+			return err
+		}
+
+		identity := models.UserIdentity{
+			UserID:     user.ID,
 			FirstName:  body.FirstName,
 			MiddleName: body.MiddleName,
 			LastName:   body.LastName,
 		}
-
-		if err := tx.Create(&user).Error; err != nil {
+		if err := tx.Create(&identity).Error; err != nil {
 			return err
 		}
 
