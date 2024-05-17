@@ -89,44 +89,46 @@ type Application struct {
 }
 
 type DictAppState struct {
-	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	ID           int     `gorm:"not null;primaryKey;" json:"id"`
 	Value        string  `gorm:"not null;" json:"value"`
 	DisplayValue *string `json:"displayValue"`
 }
 
 type DictEduDocType struct {
-	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	ID           int     `gorm:"not null;primaryKey;" json:"id"`
 	Value        string  `gorm:"not null;" json:"value"`
 	DisplayValue *string `json:"displayValue"`
 }
 
 type DictIdDocType struct {
-	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	ID           int     `gorm:"not null;primaryKey;" json:"id"`
 	Value        string  `gorm:"not null;" json:"value"`
 	DisplayValue *string `json:"displayValue"`
 }
 
 type DictEduLevel struct {
-	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	ID           int     `gorm:"not null;primaryKey;" json:"id"`
 	Value        string  `gorm:"not null;" json:"value"`
 	DisplayValue *string `json:"displayValue"`
 }
 
 type DictCountry struct {
-	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	ID           int     `gorm:"not null;primaryKey;" json:"id"`
 	Value        string  `gorm:"not null;" json:"value"`
 	DisplayValue *string `json:"displayValue"`
+	SortPriority int     `gorm:"not null;default:0;" json:"sortPriority"`
 }
 
 type DictRegion struct {
-	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
-	ValueID      int     `gorm:"not null;"`
+	ID           int     `gorm:"not null;primaryKey;" json:"id"`
+	RegionID     int     `gorm:"not null;uniqueIndex;" json:"regionId"`
 	Value        string  `gorm:"not null;" json:"value"`
 	DisplayValue *string `json:"displayValue"`
+	SortPriority int     `gorm:"not null;default:0;" json:"sortPriority"`
 }
 
 type DictTownType struct {
-	ID           int     `gorm:"not null;primaryKey;autoIncrement;" json:"id"`
+	ID           int     `gorm:"not null;primaryKey;" json:"id"`
 	Value        string  `gorm:"not null;" json:"value"`
 	DisplayValue *string `json:"displayValue"`
 }
