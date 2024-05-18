@@ -7,8 +7,10 @@ import (
 	"imi/college/internal/checks"
 	"imi/college/internal/models"
 	"imi/college/internal/security"
+	"imi/college/internal/validation"
 	"imi/college/internal/writers"
 	"net/http"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -24,14 +26,17 @@ func NewUserHandler(db *gorm.DB) *UserHandler {
 	return &UserHandler{db}
 }
 
-type NewUserBody struct {
-	Email      string `json:"email" validate:"required,email"`
-	UserName   string `json:"username" validate:"required,gte=4,lte=20"`
-	Tel        string `json:"tel" validate:"required,gte=10,lte=15"`
-	FirstName  string `json:"firstName" validate:"required"`
-	MiddleName string `json:"middleName" validate:"required"`
-	LastName   string `json:"lastName" validate:"required"`
-	Password   string `json:"password" validate:"required,gte=6,lte=72"`
+type CreateUserBody struct {
+	FirstName  string    `json:"firstName" validate:"required,gte=2"`
+	MiddleName string    `json:"middleName" validate:"required,gte=2"`
+	LastName   *string   `json:"lastName" validate:"omitnil,gte=2"`
+	Birthday   time.Time `json:"birthday" validate:"required"`
+	GenderID   int       `json:"genderId" validate:"required"`
+	UserName   string    `json:"username" validate:"required,gte=4,lte=20,username"`
+	Password   string    `json:"password" validate:"required,gte=6,lte=72"`
+	Email      string    `json:"email" validate:"required,email"`
+	Tel        string    `json:"tel" validate:"required,e164"`
+	NeedsDorm  bool      `json:"needsDorm"`
 }
 
 func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
@@ -39,7 +44,8 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 		return MalformedJSON()
 	}
 
-	var body NewUserBody
+	// TODO: logged in users shouldn't be able to register
+	var body CreateUserBody
 
 	defer r.Body.Close()
 
@@ -50,7 +56,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 		return MalformedJSON()
 	}
 
-	validate := validator.New()
+	validate := validation.NewValidator()
 	err := validate.Struct(body)
 
 	if validationErr, ok := err.(validator.ValidationErrors); ok {
@@ -63,8 +69,9 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 
 	txErr := h.db.Transaction(func(tx *gorm.DB) error {
 		user = models.User{
-			Email:    body.Email,
-			UserName: body.UserName,
+			Email:     body.Email,
+			UserName:  body.UserName,
+			NeedsDorm: body.NeedsDorm,
 		}
 		if err := tx.Create(&user).Error; err != nil {
 			return err
@@ -74,9 +81,15 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 			UserID:     user.ID,
 			FirstName:  body.FirstName,
 			MiddleName: body.MiddleName,
-			LastName:   body.LastName,
-			Tel:        sql.NullString{String: body.Tel, Valid: true},
+			GenderID:   body.GenderID,
+			Birthday:   body.Birthday,
+			Tel:        body.Tel,
 		}
+
+		if body.LastName != nil {
+			identity.LastName = sql.NullString{String: *body.LastName, Valid: true}
+		}
+
 		if err := tx.Create(&identity).Error; err != nil {
 			return err
 		}
