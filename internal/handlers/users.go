@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"imi/college/internal/checks"
@@ -64,7 +65,6 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 		user = models.User{
 			Email:    body.Email,
 			UserName: body.UserName,
-			Tel:      &body.Tel,
 		}
 		if err := tx.Create(&user).Error; err != nil {
 			return err
@@ -75,6 +75,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) error {
 			FirstName:  body.FirstName,
 			MiddleName: body.MiddleName,
 			LastName:   body.LastName,
+			Tel:        sql.NullString{String: body.Tel, Valid: true},
 		}
 		if err := tx.Create(&identity).Error; err != nil {
 			return err

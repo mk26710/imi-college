@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,6 +23,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&DictCountry{},
 		&DictRegion{},
 		&DictTownType{},
+		&DictGender{},
 		&EduDoc{},
 	)
 }
@@ -40,7 +42,6 @@ type User struct {
 	Email      string    `gorm:"not null;uniqueIndex;" json:"email"`
 	IsVerified bool      `gorm:"not null;default:false;" json:"isVerified"`
 	Role       string    `gorm:"not null;default:'regular';" json:"role"`
-	Tel        *string   `json:"tel"`
 }
 
 type Password struct {
@@ -60,13 +61,17 @@ type UserToken struct {
 }
 
 type UserIdentity struct {
-	ID         uuid.UUID  `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
-	User       User       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	UserID     uuid.UUID  `gorm:"not null;uniqueIndex;" json:"userId"`
-	FirstName  string     `gorm:"not null;" json:"firstName"`
-	MiddleName string     `gorm:"not null;" json:"middleName"`
-	LastName   string     `gorm:"not null;" json:"lastName"`
-	Birthday   *time.Time `json:"birthday"`
+	ID         uuid.UUID      `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	User       User           `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	UserID     uuid.UUID      `gorm:"not null;uniqueIndex;" json:"userId"`
+	FirstName  string         `gorm:"not null;" json:"firstName"`
+	MiddleName string         `gorm:"not null;" json:"middleName"`
+	LastName   string         `gorm:"not null;" json:"lastName"`
+	Gender     DictGender     `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	GenderID   int            `gorm:"not null;" json:"genderId"`
+	Birthday   sql.NullTime   `json:"birthday"`
+	Tel        sql.NullString `json:"tel"`
+	SNILS      sql.NullString `json:"snils"`
 }
 
 type UserAddress struct {
@@ -89,48 +94,54 @@ type Application struct {
 }
 
 type DictAppState struct {
-	ID           int     `gorm:"not null;primaryKey;" json:"id"`
-	Value        string  `gorm:"not null;" json:"value"`
-	DisplayValue *string `json:"displayValue"`
+	ID           int            `gorm:"not null;primaryKey;" json:"id"`
+	Value        string         `gorm:"not null;" json:"value"`
+	DisplayValue sql.NullString `json:"displayValue"`
 }
 
 type DictEduDocType struct {
-	ID           int     `gorm:"not null;primaryKey;" json:"id"`
-	Value        string  `gorm:"not null;" json:"value"`
-	DisplayValue *string `json:"displayValue"`
+	ID           int            `gorm:"not null;primaryKey;" json:"id"`
+	Value        string         `gorm:"not null;" json:"value"`
+	DisplayValue sql.NullString `json:"displayValue"`
 }
 
 type DictIdDocType struct {
-	ID           int     `gorm:"not null;primaryKey;" json:"id"`
-	Value        string  `gorm:"not null;" json:"value"`
-	DisplayValue *string `json:"displayValue"`
+	ID           int            `gorm:"not null;primaryKey;" json:"id"`
+	Value        string         `gorm:"not null;" json:"value"`
+	DisplayValue sql.NullString `json:"displayValue"`
 }
 
 type DictEduLevel struct {
-	ID           int     `gorm:"not null;primaryKey;" json:"id"`
-	Value        string  `gorm:"not null;" json:"value"`
-	DisplayValue *string `json:"displayValue"`
+	ID           int            `gorm:"not null;primaryKey;" json:"id"`
+	Value        string         `gorm:"not null;" json:"value"`
+	DisplayValue sql.NullString `json:"displayValue"`
 }
 
 type DictCountry struct {
-	ID           int     `gorm:"not null;primaryKey;" json:"id"`
-	Value        string  `gorm:"not null;" json:"value"`
-	DisplayValue *string `json:"displayValue"`
-	SortPriority int     `gorm:"not null;default:0;" json:"sortPriority"`
+	ID           int            `gorm:"not null;primaryKey;" json:"id"`
+	Value        string         `gorm:"not null;" json:"value"`
+	DisplayValue sql.NullString `json:"displayValue"`
+	SortPriority int            `gorm:"not null;default:0;" json:"sortPriority"`
 }
 
 type DictRegion struct {
-	ID           int     `gorm:"not null;primaryKey;" json:"id"`
-	RegionID     int     `gorm:"not null;uniqueIndex;" json:"regionId"`
-	Value        string  `gorm:"not null;" json:"value"`
-	DisplayValue *string `json:"displayValue"`
-	SortPriority int     `gorm:"not null;default:0;" json:"sortPriority"`
+	ID           int            `gorm:"not null;primaryKey;" json:"id"`
+	RegionID     int            `gorm:"not null;uniqueIndex;" json:"regionId"`
+	Value        string         `gorm:"not null;" json:"value"`
+	DisplayValue sql.NullString `json:"displayValue"`
+	SortPriority int            `gorm:"not null;default:0;" json:"sortPriority"`
 }
 
 type DictTownType struct {
-	ID           int     `gorm:"not null;primaryKey;" json:"id"`
-	Value        string  `gorm:"not null;" json:"value"`
-	DisplayValue *string `json:"displayValue"`
+	ID           int            `gorm:"not null;primaryKey;" json:"id"`
+	Value        string         `gorm:"not null;" json:"value"`
+	DisplayValue sql.NullString `json:"displayValue"`
+}
+
+type DictGender struct {
+	ID           int            `gorm:"not null;primaryKey;" json:"id"`
+	Value        string         `gorm:"not null;" json:"value"`
+	DisplayValue sql.NullString `json:"displayValue"`
 }
 
 type EduDoc struct {
