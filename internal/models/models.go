@@ -37,11 +37,11 @@ const (
 type User struct {
 	ID         uuid.UUID `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
 	CreatedAt  time.Time `gorm:"not null;default:now();" json:"createdAt"`
-	UpdatedAt  time.Time `gorm:"not null;default:now();" json:"updatedAt"`
 	UserName   string    `gorm:"not null;uniqueIndex;" json:"username"`
 	Email      string    `gorm:"not null;uniqueIndex;" json:"email"`
 	IsVerified bool      `gorm:"not null;default:false;" json:"isVerified"`
 	Role       string    `gorm:"not null;default:'regular';" json:"role"`
+	NeedsDorm  bool      `gorm:"not null;default:false;" json:"needsDorm"`
 }
 
 type Password struct {
@@ -66,11 +66,11 @@ type UserIdentity struct {
 	UserID     uuid.UUID      `gorm:"not null;uniqueIndex;" json:"userId"`
 	FirstName  string         `gorm:"not null;" json:"firstName"`
 	MiddleName string         `gorm:"not null;" json:"middleName"`
-	LastName   string         `gorm:"not null;" json:"lastName"`
+	LastName   sql.NullString `json:"lastName"`
 	Gender     DictGender     `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	GenderID   int            `gorm:"not null;" json:"genderId"`
-	Birthday   sql.NullTime   `json:"birthday"`
-	Tel        sql.NullString `json:"tel"`
+	Birthday   time.Time      `gorm:"not null;" json:"birthday"`
+	Tel        string         `gorm:"not null;" json:"tel"`
 	SNILS      sql.NullString `json:"snils"`
 }
 
