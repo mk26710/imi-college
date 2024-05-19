@@ -16,14 +16,16 @@ import (
 )
 
 type RoutesHandlers struct {
-	User *handlers.UserHandler
-	File *handlers.FilesHandler
+	User      *handlers.UserHandler
+	File      *handlers.FilesHandler
+	Documents *handlers.DocumentsHandler
 }
 
 func CreateHandlers(db *gorm.DB) RoutesHandlers {
 	return RoutesHandlers{
-		User: handlers.NewUserHandler(db),
-		File: handlers.NewFilesHandler(db),
+		User:      handlers.NewUserHandler(db),
+		File:      handlers.NewFilesHandler(db),
+		Documents: handlers.NewDocmentsHandler(db),
 	}
 }
 
@@ -57,6 +59,7 @@ func main() {
 		r.Use(mw.EnsureUserSession(db))
 		r.Get("/users/{id}", handlers.APIHandler(h.User.ReadUser))
 		r.Post("/upload", handlers.APIHandler(h.File.CreateFile))
+		r.Post("/documents/identity", handlers.APIHandler(h.Documents.CreateDocumentIdentity))
 	})
 
 	srv := http.Server{
