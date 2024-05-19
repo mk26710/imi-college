@@ -25,6 +25,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&DictRegion{},
 		&DictTownType{},
 		&DictGender{},
+		&CollegeMajor{},
 		&IdentityDoc{},
 		&EducationDoc{},
 	)
@@ -153,6 +154,16 @@ type DictGender struct {
 	ID           int            `gorm:"not null;primaryKey;" json:"id"`
 	Value        string         `gorm:"not null;" json:"value"`
 	DisplayValue sql.NullString `json:"displayValue"`
+}
+
+type CollegeMajor struct {
+	ID           uuid.UUID `gorm:"not null;type:uuid;default:gen_random_uuid();" json:"id"`
+	Name         string    `gorm:"not null;" json:"name"`
+	Prefix       string    `gorm:"not null;" json:"prefix"`
+	Base         string    `gorm:"not null;" json:"base"`
+	NameOfficial string    `gorm:"not null;" json:"nameOfficial"`
+	Budget       bool      `gorm:"not null;default:false;" json:"budget"` // TODO: there might be a better name for this field
+	Code         string    `gorm:"not null;" json:"code"`
 }
 
 type IdentityDoc struct {
