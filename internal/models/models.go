@@ -169,7 +169,7 @@ type IdentityDoc struct {
 	Nationality   DictNationality `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	NationalityID int             `gorm:"not null;" json:"nationalityId"`
 	File          UserFile        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
-	FileID        uuid.UUID       `gorm:"type:uuid;" json:"fileId"`
+	FileID        uuid.NullUUID   `gorm:"type:uuid;" json:"fileId"`
 }
 
 type EducationDoc struct {
