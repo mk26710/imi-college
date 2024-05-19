@@ -15,16 +15,18 @@ func AutoMigrate(db *gorm.DB) error {
 		&UserToken{},
 		&UserIdentity{},
 		&UserAddress{},
+		&UserFile{},
 		&Application{},
-		&DictAppState{},
+		&DictAppStatus{},
 		&DictEduDocType{},
 		&DictIdDocType{},
 		&DictEduLevel{},
-		&DictCountry{},
+		&DictNationality{},
 		&DictRegion{},
 		&DictTownType{},
 		&DictGender{},
-		&EduDoc{},
+		&IdentityDoc{},
+		&EducationDoc{},
 	)
 }
 
@@ -84,16 +86,25 @@ type UserAddress struct {
 	PostCode   string       `gorm:"not null;" json:"postCode"`
 }
 
-type Application struct {
-	ID        uuid.UUID    `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
-	User      User         `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	UserID    uuid.UUID    `json:"userId"`
-	State     DictAppState `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	StateID   int          `gorm:"not null;" json:"stateId"`
-	CreatedAt time.Time    `gorm:"not null;default:now();" json:"createdAt"`
+type UserFile struct {
+	ID           uuid.UUID `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	CreatedAt    time.Time `gorm:"not null;default:now();" json:"createdAt"`
+	User         User      `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	UserID       uuid.UUID `gorm:"not null;type:uuid;" json:"userId"`
+	MimeType     string    `gorm:"not null;" json:"mimeType"`
+	AbsolutePath string    `gorm:"not null;" json:"-"`
 }
 
-type DictAppState struct {
+type Application struct {
+	ID        uuid.UUID     `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	User      User          `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	UserID    uuid.UUID     `json:"userId"`
+	Status    DictAppStatus `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	StatusID  int           `gorm:"not null;" json:"stateId"`
+	CreatedAt time.Time     `gorm:"not null;default:now();" json:"createdAt"`
+}
+
+type DictAppStatus struct {
 	ID           int            `gorm:"not null;primaryKey;" json:"id"`
 	Value        string         `gorm:"not null;" json:"value"`
 	DisplayValue sql.NullString `json:"displayValue"`
@@ -117,7 +128,7 @@ type DictEduLevel struct {
 	DisplayValue sql.NullString `json:"displayValue"`
 }
 
-type DictCountry struct {
+type DictNationality struct {
 	ID           int            `gorm:"not null;primaryKey;" json:"id"`
 	Value        string         `gorm:"not null;" json:"value"`
 	DisplayValue sql.NullString `json:"displayValue"`
@@ -144,7 +155,24 @@ type DictGender struct {
 	DisplayValue sql.NullString `json:"displayValue"`
 }
 
-type EduDoc struct {
+type IdentityDoc struct {
+	ID            uuid.UUID       `gorm:"not null;type:uuid;default:gen_random_uuid();" json:"id"`
+	User          User            `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	UserID        uuid.UUID       `gorm:"not null;type:uuid;" json:"userId"`
+	Type          DictIdDocType   `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	TypeID        int             `gorm:"not null;" json:"typeId"`
+	Series        string          `gorm:"not null;" json:"series"`
+	Number        string          `gorm:"not null;" json:"number"`
+	Issuer        string          `gorm:"not null;" json:"issuer"`
+	IssuedAt      time.Time       `gorm:"not null;" json:"issuedAt"`
+	DivisionCode  string          `gorm:"not null;" json:"divisionCode"`
+	Nationality   DictNationality `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	NationalityID int             `gorm:"not null;" json:"nationalityId"`
+	File          UserFile        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
+	FileID        uuid.UUID       `gorm:"type:uuid;" json:"fileId"`
+}
+
+type EducationDoc struct {
 	ID             uuid.UUID      `gorm:"not null;type:uuid;default:gen_random_uuid();" json:"id"`
 	CreatedAt      time.Time      `gorm:"not null;default:now();" json:"createdAt"`
 	User           User           `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
