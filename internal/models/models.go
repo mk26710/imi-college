@@ -72,13 +72,15 @@ type UserIdentity struct {
 	LastName   sql.NullString `json:"lastName"`
 	Gender     DictGender     `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	GenderID   int            `gorm:"not null;" json:"genderId"`
-	Birthday   time.Time      `gorm:"not null;" json:"birthday"`
+	Birthday   time.Time      `gorm:"not null;type:date;" json:"birthday"`
 	Tel        string         `gorm:"not null;" json:"tel"`
 	SNILS      sql.NullString `json:"snils"`
 }
 
 type UserAddress struct {
 	ID         uuid.UUID    `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	User       User         `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	UserID     uuid.UUID    `gorm:"not null;type:uuid;" json:"userId"`
 	Region     DictRegion   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	RegionID   int          `gorm:"not null;" json:"regionId"`
 	TownType   DictTownType `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
@@ -97,12 +99,17 @@ type UserFile struct {
 }
 
 type Application struct {
-	ID        uuid.UUID     `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
-	User      User          `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	UserID    uuid.UUID     `json:"userId"`
-	Status    DictAppStatus `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	StatusID  int           `gorm:"not null;" json:"stateId"`
-	CreatedAt time.Time     `gorm:"not null;default:now();" json:"createdAt"`
+	ID         uuid.UUID     `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	CreatedAt  time.Time     `gorm:"not null;default:now();" json:"createdAt"`
+	User       User          `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	UserID     uuid.UUID     `gorm:"not null;type:uuid;" json:"userId"`
+	Major      CollegeMajor  `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	MajorID    uuid.UUID     `gorm:"not null;type:uuid;" json:"majorId"`
+	EduLevel   DictEduLevel  `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	EduLevelID int           `gorm:"not null;" json:"eduLevelId"`
+	Status     DictAppStatus `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	StatusID   int           `gorm:"not null;" json:"stateId"`
+	Priority   uint8         `gorm:"not null;default:1;" json:"priority"`
 }
 
 type DictAppStatus struct {
