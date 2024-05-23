@@ -10,9 +10,10 @@ import (
 )
 
 type APIError struct {
-	Status  int `json:"status"`
-	Message any `json:"message"`
-	Details any `json:"details,omitempty"`
+	Success bool `json:"success"` // todo: probably better switch it, as there's no such field on successful api calls
+	Status  int  `json:"status"`
+	Message any  `json:"message"`
+	Details any  `json:"details,omitempty"`
 
 	cause error `json:"-"`
 }
