@@ -88,7 +88,5 @@ func (h *DocumentsHandler) CreateDocumentIdentity(w http.ResponseWriter, r *http
 		return err
 	}
 
-	writers.Json(w, http.StatusOK, doc)
-
-	return nil
+	return writers.Json(w, http.StatusOK, doc)
 }
