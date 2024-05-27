@@ -1,12 +1,14 @@
 package main
 
 import (
+	"imi/college/internal/env"
 	"imi/college/internal/handlers"
 	mw "imi/college/internal/middleware"
 	"imi/college/internal/models"
 	"log"
 	"net/http"
-	"os"
+
+	"github.com/go-chi/cors"
 
 	"github.com/go-chi/chi/v5"
 	chimw "github.com/go-chi/chi/v5/middleware"
@@ -34,7 +36,7 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	db, err := gorm.Open(postgres.Open(os.Getenv("DB_DSN")), &gorm.Config{TranslateError: true})
+	db, err := gorm.Open(postgres.Open(env.DSN()), &gorm.Config{TranslateError: true})
 	if err != nil {
 		log.Fatalln("Couldn't connect to postgres database")
 	}
@@ -45,6 +47,13 @@ func main() {
 	r.Use(chimw.Logger)
 	r.Use(chimw.CleanPath)
 	r.Use(chimw.Recoverer)
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"http://127.0.0.1:5173/"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 
 	h := CreateHandlers(db)
 
@@ -63,11 +72,11 @@ func main() {
 	})
 
 	srv := http.Server{
-		Addr:    os.Getenv("ADDR"),
+		Addr:    env.Addr(),
 		Handler: r,
 	}
 
-	log.Printf("Lisetning on http://%s\n", os.Getenv("ADDR"))
+	log.Printf("Lisetning on http://%s\n", env.Addr())
 	if err := srv.ListenAndServe(); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
