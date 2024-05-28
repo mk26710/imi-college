@@ -8,6 +8,7 @@ import (
 	"imi/college/internal/writers"
 	"net/http"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -18,42 +19,51 @@ func writeError(w http.ResponseWriter) {
 
 func EnsureUserSession(db *gorm.DB) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		h := func(w http.ResponseWriter, r *http.Request) {
-			authHeader := r.Header.Get("Authorization")
-			if len(authHeader) == 0 {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			var inputToken string
+
+			// attempt to read token from cookie first
+			if cookie, err := r.Cookie("token"); err == nil {
+				inputToken = cookie.Value
+			}
+
+			// if cookie wasn't read or empty attempt reading header
+			if header := r.Header.Get("Authorization"); len(header) > 0 && len(inputToken) == 0 {
+				inputToken = header
+			}
+
+			// if token is empty then there's no token
+			if len(inputToken) == 0 {
 				writeError(w)
 				return
 			}
 
-			if !strings.HasPrefix(authHeader, "Bearer ") {
+			// make sure token has prefix and cut it
+			rawToken, isCut := strings.CutPrefix(inputToken, "Bearer ")
+			if !isCut {
 				writeError(w)
 				return
 			}
 
-			headerParts := strings.SplitN(authHeader, " ", 2)
-			if headerParts == nil {
+			var userToken models.UserToken
+
+			if err := db.Where(&models.UserToken{Token: rawToken}).Preload("User").First(&userToken).Error; err != nil {
 				writeError(w)
 				return
 			}
 
-			providedToken := headerParts[1]
-			if len(providedToken) < 1 {
+			// check if found token has expired
+			if userToken.ExpiresAt.Before(time.Now()) {
+				db.Delete(userToken)
 				writeError(w)
 				return
 			}
 
-			var session models.UserToken
-
-			if err := db.Where(&models.UserToken{Token: providedToken}).Preload("User").First(&session).Error; err != nil {
-				writeError(w)
-				return
-			}
-
-			ctx := context.WithValue(r.Context(), ctx.TokenKey, session)
+			ctx := context.WithValue(r.Context(), ctx.TokenKey, userToken)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 
-		return http.HandlerFunc(h)
+		return http.HandlerFunc(fn)
 	}
 }
