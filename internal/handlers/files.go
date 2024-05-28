@@ -8,31 +8,36 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"path"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-func NewFilesHandler(db *gorm.DB) *FilesHandler {
-	return &FilesHandler{db}
-}
-
-func IsSupportedImageType(file multipart.File) (bool, error) {
-	// only 512 bytes are needed to find out if file is an image
+// checks if provided file is in image of supported type and
+// will return APIError if file is unsupported or there was
+// a different error while performing a mimetype check
+//
+// if the image is supported will return the mimetype
+func ValidateImageType(file multipart.File) (string, error) {
+	// 512 bytes needed as per DetectContentType docs
 	buf := make([]byte, 512)
 	if _, err := file.Read(buf); err != nil {
-		return false, err
+		return "", err
 	}
 
+	// we should seek file reader back to start
 	if _, err := file.Seek(0, io.SeekStart); err != nil {
-		return false, err
+		return "", err
 	}
 
-	switch http.DetectContentType(buf) {
+	mime := http.DetectContentType(buf)
+
+	switch mime {
 	case "image/png", "image/jpeg", "image/jpg":
-		return true, nil
+		return mime, nil
 	default:
-		return false, nil
+		return "", UnprocessableEntity()
 	}
 }
 
@@ -56,7 +61,7 @@ func SaveUserImage(image multipart.File, userID uuid.UUID, filename string) erro
 		return err
 	}
 
-	attachmentPath := fmt.Sprintf("%s/%s", userDir, filename)
+	attachmentPath := path.Join(userDir, filename)
 
 	out, err := os.Create(attachmentPath)
 	if err != nil {
@@ -72,12 +77,16 @@ func SaveUserImage(image multipart.File, userID uuid.UUID, filename string) erro
 	return nil
 }
 
+// struct of the http handler for files
 type FilesHandler struct {
 	db *gorm.DB
 }
 
+func NewFilesHandler(db *gorm.DB) *FilesHandler {
+	return &FilesHandler{db}
+}
+
 // This handler requires a request body to be a form
-// attachment - a file user attaches
 func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error {
 	user, err := ctx.GetUser(r)
 	if err != nil {
@@ -99,13 +108,9 @@ func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error 
 
 	defer attachment.Close()
 
-	isImage, err := IsSupportedImageType(attachment)
-	if err != nil {
-		return err
-	}
-
-	if !isImage {
-		return MalformedForm()
+	// check if provided file is an image of supported type
+	if _, err := ValidateImageType(attachment); err != nil {
+		return nil
 	}
 
 	if err := SaveUserImage(attachment, user.ID, handler.Filename); err != nil {
@@ -113,7 +118,5 @@ func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error 
 	}
 
 	// TODO: create sensible response
-	writers.Json(w, 200, map[string]any{"success": true})
-
-	return nil
+	return writers.Json(w, 200, map[string]any{"success": true})
 }
