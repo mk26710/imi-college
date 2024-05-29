@@ -19,6 +19,7 @@ import (
 
 type RoutesHandlers struct {
 	User      *handlers.UserHandler
+	Tokens    *handlers.TokensHandler
 	File      *handlers.FilesHandler
 	Documents *handlers.DocumentsHandler
 }
@@ -26,6 +27,7 @@ type RoutesHandlers struct {
 func CreateHandlers(db *gorm.DB) RoutesHandlers {
 	return RoutesHandlers{
 		User:      handlers.NewUserHandler(db),
+		Tokens:    handlers.NewTokensHandler(db),
 		File:      handlers.NewFilesHandler(db),
 		Documents: handlers.NewDocmentsHandler(db),
 	}
@@ -60,12 +62,15 @@ func main() {
 	// Public routes group
 	r.Group(func(r chi.Router) {
 		r.Post("/users", handlers.APIHandler(h.User.CreateUser))
-		r.Post("/users/token", handlers.APIHandler(h.User.CreateUserToken))
+		r.Post("/tokens", handlers.APIHandler(h.Tokens.Create))
+		r.Delete("/tokens", handlers.APIHandler(h.Tokens.Delete))
 	})
 
 	// Authentication required
 	r.Group(func(r chi.Router) {
 		r.Use(mw.EnsureUserSession(db))
+		r.Get("/users/@me", handlers.APIHandler(h.User.ReadUserMe))
+		// todo: make staff only route
 		r.Get("/users/{id}", handlers.APIHandler(h.User.ReadUser))
 		r.Post("/upload", handlers.APIHandler(h.File.CreateFile))
 		r.Post("/documents/identity", handlers.APIHandler(h.Documents.CreateDocumentIdentity))
