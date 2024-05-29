@@ -61,7 +61,7 @@ func main() {
 
 	// Public routes group
 	r.Group(func(r chi.Router) {
-		r.Post("/users", handlers.APIHandler(h.User.CreateUser))
+		r.Post("/users", handlers.APIHandler(h.User.Create))
 		r.Post("/tokens", handlers.APIHandler(h.Tokens.Create))
 		r.Delete("/tokens", handlers.APIHandler(h.Tokens.Delete))
 	})
@@ -69,9 +69,9 @@ func main() {
 	// Authentication required
 	r.Group(func(r chi.Router) {
 		r.Use(mw.EnsureUserSession(db))
-		r.Get("/users/@me", handlers.APIHandler(h.User.ReadUserMe))
+		r.Get("/users/@me", handlers.APIHandler(h.User.ReadMe))
 		// todo: make staff only route
-		r.Get("/users/{id}", handlers.APIHandler(h.User.ReadUser))
+		r.Get("/users/{id}", handlers.APIHandler(h.User.Read))
 		r.Post("/upload", handlers.APIHandler(h.File.CreateFile))
 		r.Post("/documents/identity", handlers.APIHandler(h.Documents.CreateDocumentIdentity))
 	})
