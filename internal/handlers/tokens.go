@@ -145,7 +145,10 @@ func (h *TokensHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	response := map[string]any{"deleted": true}
+	http.SetCookie(w, &http.Cookie{
+		Name:   "token",
+		MaxAge: -999,
+	})
 
-	return writer.JSON(w, http.StatusOK, response)
+	return writer.JSON(w, http.StatusOK, map[string]any{"deleted": true})
 }
