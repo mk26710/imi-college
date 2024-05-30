@@ -8,7 +8,7 @@ import (
 	"imi/college/internal/ctx"
 	"imi/college/internal/models"
 	"imi/college/internal/validation"
-	"imi/college/internal/writers"
+	"imi/college/internal/writer"
 	"net/http"
 	"time"
 
@@ -115,7 +115,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return writers.Json(w, http.StatusOK, user)
+	return writer.JSON(w, http.StatusOK, user)
 }
 
 // GET /users/@me
@@ -127,7 +127,7 @@ func (h *UserHandler) ReadMe(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return writers.Json(w, http.StatusOK, user)
+	return writer.JSON(w, http.StatusOK, user)
 }
 
 // todo: prevent users from fetching other users, allow that only for admins (could use privelege levels as columns in users?)
@@ -155,5 +155,5 @@ func (h *UserHandler) Read(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	return writers.Json(w, http.StatusOK, user)
+	return writer.JSON(w, http.StatusOK, user)
 }

@@ -6,7 +6,7 @@ import (
 	"imi/college/internal/ctx"
 	"imi/college/internal/models"
 	"imi/college/internal/validation"
-	"imi/college/internal/writers"
+	"imi/college/internal/writer"
 	"net/http"
 	"time"
 
@@ -88,5 +88,5 @@ func (h *DocumentsHandler) CreateDocumentIdentity(w http.ResponseWriter, r *http
 		return err
 	}
 
-	return writers.Json(w, http.StatusOK, doc)
+	return writer.JSON(w, http.StatusOK, doc)
 }

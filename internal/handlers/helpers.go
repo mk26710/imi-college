@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"imi/college/internal/writers"
+	"imi/college/internal/writer"
 	"log/slog"
 	"net/http"
 	"strings"
@@ -43,10 +43,10 @@ func APIHandler(h APIFunc) http.HandlerFunc {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		if err := h(w, r); err != nil {
 			if apiErr, ok := err.(APIError); ok {
-				writers.Json(w, apiErr.Status, apiErr)
+				writer.JSON(w, apiErr.Status, apiErr)
 			} else {
 				errResp := APIError{Status: http.StatusInternalServerError, Message: "Internal Server Error"}
-				writers.Json(w, http.StatusInternalServerError, errResp)
+				writer.JSON(w, http.StatusInternalServerError, errResp)
 			}
 
 			slog.Error("HTTP API Error", "err", err.Error(), "path", r.URL.Path)

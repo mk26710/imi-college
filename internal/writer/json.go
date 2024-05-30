@@ -1,11 +1,11 @@
-package writers
+package writer
 
 import (
 	"encoding/json"
 	"net/http"
 )
 
-func Json(w http.ResponseWriter, status int, data any) error {
+func JSON(w http.ResponseWriter, status int, data any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
 

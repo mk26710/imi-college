@@ -6,7 +6,7 @@ import (
 	"imi/college/internal/handlers"
 	"imi/college/internal/models"
 	"imi/college/internal/security"
-	"imi/college/internal/writers"
+	"imi/college/internal/writer"
 	"net/http"
 	"time"
 
@@ -14,7 +14,7 @@ import (
 )
 
 func writeError(w http.ResponseWriter) {
-	writers.Json(w, http.StatusForbidden, handlers.Forbidden())
+	writer.JSON(w, http.StatusForbidden, handlers.Forbidden())
 }
 
 func EnsureUserSession(db *gorm.DB) func(next http.Handler) http.Handler {

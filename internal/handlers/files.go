@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 	"imi/college/internal/ctx"
-	"imi/college/internal/writers"
+	"imi/college/internal/writer"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -118,5 +118,5 @@ func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error 
 	}
 
 	// TODO: create sensible response
-	return writers.Json(w, 200, map[string]any{"success": true})
+	return writer.JSON(w, 200, map[string]any{"success": true})
 }

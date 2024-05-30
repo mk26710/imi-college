@@ -8,7 +8,7 @@ import (
 	"imi/college/internal/env"
 	"imi/college/internal/models"
 	"imi/college/internal/security"
-	"imi/college/internal/writers"
+	"imi/college/internal/writer"
 	"net/http"
 	"time"
 
@@ -63,7 +63,6 @@ func (h *TokensHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return InvalidCredentials(err)
 		}
-
 		return err
 	}
 
@@ -110,7 +109,7 @@ func (h *TokensHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		http.SetCookie(w, &cookie)
 	}
 
-	return writers.Json(w, http.StatusOK, userToken)
+	return writer.JSON(w, http.StatusOK, userToken)
 }
 
 // DELETE /tokens
@@ -148,5 +147,5 @@ func (h *TokensHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 
 	response := map[string]any{"deleted": true}
 
-	return writers.Json(w, http.StatusOK, response)
+	return writer.JSON(w, http.StatusOK, response)
 }
