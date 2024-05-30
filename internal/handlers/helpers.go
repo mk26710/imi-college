@@ -84,6 +84,13 @@ func Forbidden() APIError {
 	}
 }
 
+func Unauthorized() APIError {
+	return APIError{
+		Status:  http.StatusUnauthorized,
+		Message: "Unauthorized",
+	}
+}
+
 func TooLarge() APIError {
 	return APIError{
 		Status:  http.StatusRequestEntityTooLarge,
