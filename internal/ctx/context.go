@@ -6,13 +6,13 @@ import (
 	"net/http"
 )
 
-var ErrMissingTokenInContext error = errors.New("request had no user token in context")
+var ErrUserTokenNotFound error = errors.New("request had no user token in context")
 var ErrUserDataUnattached error = errors.New("user data was not attached to token")
 
 func GetToken(r *http.Request) (models.UserToken, error) {
 	token, ok := r.Context().Value(TokenKey).(models.UserToken)
 	if !ok {
-		return models.UserToken{}, ErrMissingTokenInContext
+		return models.UserToken{}, ErrUserTokenNotFound
 	}
 
 	return token, nil
