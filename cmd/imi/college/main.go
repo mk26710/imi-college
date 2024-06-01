@@ -1,6 +1,7 @@
 package main
 
 import (
+	"imi/college/internal/enum"
 	"imi/college/internal/env"
 	"imi/college/internal/handlers"
 	mw "imi/college/internal/middleware"
@@ -68,11 +69,13 @@ func main() {
 
 	// Authentication required
 	r.Group(func(r chi.Router) {
-		r.Use(mw.EnsureUserSession(db))
+		r.Use(mw.RequireUser(db))
+
 		r.Get("/users/@me", handlers.APIHandler(h.User.ReadMe))
-		// todo: make staff only route
-		r.Get("/users/{id}", handlers.APIHandler(h.User.Read))
-		r.Post("/upload", handlers.APIHandler(h.File.CreateFile))
+		r.With(mw.RequirePermissions(enum.PermissionViewUser)).Get("/users/{id}", handlers.APIHandler(h.User.Read))
+
+		r.Post("/files", handlers.APIHandler(h.File.CreateFile))
+
 		r.Post("/documents/identity", handlers.APIHandler(h.Documents.CreateDocumentIdentity))
 	})
 

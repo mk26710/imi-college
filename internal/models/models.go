@@ -31,20 +31,14 @@ func AutoMigrate(db *gorm.DB) error {
 	)
 }
 
-const (
-	RoleRegular string = "regular"
-	RoleStaff   string = "staff"
-	RoleAdmin   string = "admin"
-)
-
 type User struct {
-	ID         uuid.UUID `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
-	CreatedAt  time.Time `gorm:"not null;default:now();" json:"createdAt"`
-	UserName   string    `gorm:"not null;uniqueIndex;" json:"username"`
-	Email      string    `gorm:"not null;uniqueIndex;" json:"email"`
-	IsVerified bool      `gorm:"not null;default:false;" json:"isVerified"`
-	Role       string    `gorm:"not null;default:'regular';" json:"role"`
-	NeedsDorm  bool      `gorm:"not null;default:false;" json:"needsDorm"`
+	ID          uuid.UUID `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	CreatedAt   time.Time `gorm:"not null;default:now();" json:"createdAt"`
+	UserName    string    `gorm:"not null;uniqueIndex;" json:"username"`
+	Email       string    `gorm:"not null;uniqueIndex;" json:"email"`
+	IsVerified  bool      `gorm:"not null;default:false;" json:"isVerified"`
+	NeedsDorm   bool      `gorm:"not null;default:false;" json:"needsDorm"`
+	Permissions int64     `gorm:"not null;default:0;" json:"permissions,string"`
 }
 
 type Password struct {
