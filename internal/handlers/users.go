@@ -122,7 +122,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 //
 // special endpoint to read user data about currently authenticated
 func (h *UserHandler) ReadMe(w http.ResponseWriter, r *http.Request) error {
-	user, err := ctx.GetUser(r)
+	user, err := ctx.GetCurrentUser(r)
 	if err != nil {
 		return err
 	}
@@ -130,7 +130,6 @@ func (h *UserHandler) ReadMe(w http.ResponseWriter, r *http.Request) error {
 	return writer.JSON(w, http.StatusOK, user)
 }
 
-// todo: prevent users from fetching other users, allow that only for admins (could use privelege levels as columns in users?)
 // GET /users/{id}
 //
 // provides information about requested user by ID (uuid)

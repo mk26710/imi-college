@@ -18,7 +18,7 @@ func GetToken(r *http.Request) (models.UserToken, error) {
 	return token, nil
 }
 
-func GetUser(r *http.Request) (models.User, error) {
+func GetCurrentUser(r *http.Request) (models.User, error) {
 	token, err := GetToken(r)
 	if err != nil {
 		return models.User{}, err

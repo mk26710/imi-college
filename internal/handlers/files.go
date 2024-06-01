@@ -88,7 +88,7 @@ func NewFilesHandler(db *gorm.DB) *FilesHandler {
 
 // This handler requires a request body to be a form
 func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error {
-	user, err := ctx.GetUser(r)
+	user, err := ctx.GetCurrentUser(r)
 	if err != nil {
 		return err
 	}
