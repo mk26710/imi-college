@@ -145,10 +145,12 @@ func (h *TokensHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	http.SetCookie(w, &http.Cookie{
-		Name:   "token",
-		MaxAge: -999,
-	})
+	if r.URL.Query().Get("cookie") == "unset" {
+		http.SetCookie(w, &http.Cookie{
+			Name:   "token",
+			MaxAge: -999,
+		})
+	}
 
 	return writer.JSON(w, http.StatusOK, map[string]any{"deleted": true})
 }
