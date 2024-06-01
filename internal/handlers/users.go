@@ -6,6 +6,7 @@ import (
 	"errors"
 	"imi/college/internal/checks"
 	"imi/college/internal/ctx"
+	"imi/college/internal/extras"
 	"imi/college/internal/models"
 	"imi/college/internal/validation"
 	"imi/college/internal/writer"
@@ -44,7 +45,10 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return MalformedJSON()
 	}
 
-	// TODO: logged in users shouldn't be able to register
+	if _, err := extras.UserFromHttp(h.db, r); err == nil {
+		return BadRequest("authenticated users cannot create new accounts")
+	}
+
 	var body CreateUserBody
 
 	defer r.Body.Close()
