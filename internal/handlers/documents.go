@@ -38,7 +38,7 @@ func (h *DocumentsHandler) CreateDocumentIdentity(w http.ResponseWriter, r *http
 		return MalformedJSON()
 	}
 
-	user, err := ctx.GetUser(r)
+	user, err := ctx.GetCurrentUser(r)
 	if err != nil {
 		return err
 	}
