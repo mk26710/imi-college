@@ -1,13 +1,13 @@
 package handlers
 
 import (
-	"database/sql"
 	"encoding/json"
 	"errors"
 	"imi/college/internal/checks"
 	"imi/college/internal/ctx"
 	"imi/college/internal/extras"
 	"imi/college/internal/models"
+	"imi/college/internal/query"
 	"imi/college/internal/validation"
 	"imi/college/internal/writer"
 	"net/http"
@@ -81,20 +81,17 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		identity := models.UserDetails{
+		details := models.UserDetails{
 			UserID:     user.ID,
 			FirstName:  body.FirstName,
 			MiddleName: body.MiddleName,
+			LastName:   body.LastName,
 			GenderID:   body.GenderID,
 			Birthday:   body.Birthday,
 			Tel:        body.Tel,
 		}
 
-		if body.LastName != nil {
-			identity.LastName = sql.NullString{String: *body.LastName, Valid: true}
-		}
-
-		if err := tx.Create(&identity).Error; err != nil {
+		if err := tx.Create(&details).Error; err != nil {
 			return err
 		}
 
@@ -148,14 +145,9 @@ func (h *UserHandler) Read(w http.ResponseWriter, r *http.Request) error {
 		return BadRequest("provided user ID is incorrect")
 	}
 
-	var user models.User
-
-	if err := h.db.Where(&models.User{ID: id}).First(&user).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return NotFound()
-		}
-
-		return err
+	user, err := query.GetUserByID(h.db, id)
+	if err != nil {
+		return NotFound()
 	}
 
 	return writer.JSON(w, http.StatusOK, user)
