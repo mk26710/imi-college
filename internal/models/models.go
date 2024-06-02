@@ -32,13 +32,14 @@ func AutoMigrate(db *gorm.DB) error {
 }
 
 type User struct {
-	ID          uuid.UUID `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
-	CreatedAt   time.Time `gorm:"not null;default:now();" json:"createdAt"`
-	UserName    string    `gorm:"not null;uniqueIndex;" json:"username"`
-	Email       string    `gorm:"not null;uniqueIndex;" json:"email"`
-	IsVerified  bool      `gorm:"not null;default:false;" json:"isVerified"`
-	NeedsDorm   bool      `gorm:"not null;default:false;" json:"needsDorm"`
-	Permissions int64     `gorm:"not null;default:0;" json:"permissions,string"`
+	ID          uuid.UUID    `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	CreatedAt   time.Time    `gorm:"not null;default:now();" json:"createdAt"`
+	UserName    string       `gorm:"not null;uniqueIndex;" json:"username"`
+	Email       string       `gorm:"not null;uniqueIndex;" json:"email"`
+	IsVerified  bool         `gorm:"not null;default:false;" json:"isVerified"`
+	NeedsDorm   bool         `gorm:"not null;default:false;" json:"needsDorm"`
+	Permissions int64        `gorm:"not null;default:0;" json:"permissions,string"`
+	Details     *UserDetails `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"details"`
 }
 
 type Password struct {
@@ -58,17 +59,16 @@ type UserToken struct {
 }
 
 type UserDetails struct {
-	ID         uuid.UUID      `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
-	User       User           `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	UserID     uuid.UUID      `gorm:"not null;uniqueIndex;" json:"userId"`
-	FirstName  string         `gorm:"not null;" json:"firstName"`
-	MiddleName string         `gorm:"not null;" json:"middleName"`
-	LastName   sql.NullString `json:"lastName"`
-	Gender     DictGender     `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	GenderID   int            `gorm:"not null;" json:"genderId"`
-	Birthday   time.Time      `gorm:"not null;type:date;" json:"birthday"`
-	Tel        string         `gorm:"not null;" json:"tel"`
-	SNILS      sql.NullString `json:"snils"`
+	ID         uuid.UUID  `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
+	UserID     uuid.UUID  `gorm:"not null;uniqueIndex;" json:"userId"`
+	FirstName  string     `gorm:"not null;" json:"firstName"`
+	MiddleName string     `gorm:"not null;" json:"middleName"`
+	LastName   *string    `json:"lastName"`
+	Gender     DictGender `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	GenderID   int        `gorm:"not null;" json:"genderId"`
+	Birthday   time.Time  `gorm:"not null;type:date;" json:"birthday"`
+	Tel        string     `gorm:"not null;" json:"tel"`
+	SNILS      *string    `json:"snils"`
 }
 
 type UserAddress struct {
