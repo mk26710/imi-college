@@ -13,7 +13,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&User{},
 		&Password{},
 		&UserToken{},
-		&UserIdentity{},
+		&UserDetails{},
 		&UserAddress{},
 		&UserFile{},
 		&Application{},
@@ -57,7 +57,7 @@ type UserToken struct {
 	Token     string    `gorm:"not null;uniqueIndex;" json:"token"`
 }
 
-type UserIdentity struct {
+type UserDetails struct {
 	ID         uuid.UUID      `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
 	User       User           `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	UserID     uuid.UUID      `gorm:"not null;uniqueIndex;" json:"userId"`

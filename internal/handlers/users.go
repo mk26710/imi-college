@@ -81,7 +81,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		identity := models.UserIdentity{
+		identity := models.UserDetails{
 			UserID:     user.ID,
 			FirstName:  body.FirstName,
 			MiddleName: body.MiddleName,
