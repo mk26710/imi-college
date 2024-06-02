@@ -3,6 +3,7 @@ package extras
 import (
 	"fmt"
 	"imi/college/internal/models"
+	"imi/college/internal/query"
 	"imi/college/internal/security"
 	"net/http"
 	"time"
@@ -16,9 +17,8 @@ func UserFromHttp(db *gorm.DB, r *http.Request) (models.User, error) {
 		return models.User{}, err
 	}
 
-	var token models.UserToken
-
-	if err := db.Where(&models.UserToken{Token: rawToken}).First(&token).Error; err != nil {
+	token, err := query.GetTokenByValue(db, rawToken)
+	if err != nil {
 		return models.User{}, err
 	}
 
@@ -27,9 +27,8 @@ func UserFromHttp(db *gorm.DB, r *http.Request) (models.User, error) {
 		return models.User{}, fmt.Errorf("token has expired")
 	}
 
-	var user models.User
-
-	if err := db.Where(&models.User{ID: token.UserID}).First(&user).Error; err != nil {
+	user, err := query.GetUserByID(db, token.UserID)
+	if err != nil {
 		return models.User{}, err
 	}
 
