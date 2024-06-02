@@ -1,5 +1,5 @@
 package ctx
 
-type TokenContextKey string
+type UserCtxKey string
 
-const TokenKey TokenContextKey = TokenContextKey("UserToken")
+const UserKey UserCtxKey = UserCtxKey("User")

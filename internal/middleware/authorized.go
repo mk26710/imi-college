@@ -4,12 +4,10 @@ import (
 	"context"
 	"imi/college/internal/ctx"
 	"imi/college/internal/enum"
+	"imi/college/internal/extras"
 	"imi/college/internal/handlers"
-	"imi/college/internal/models"
-	"imi/college/internal/security"
 	"imi/college/internal/writer"
 	"net/http"
-	"time"
 
 	"gorm.io/gorm"
 )
@@ -22,29 +20,15 @@ func writeError(w http.ResponseWriter) {
 func RequireUser(db *gorm.DB) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			rawToken, err := security.ExtractToken(r)
+			user, err := extras.UserFromHttp(db, r)
 			if err != nil {
 				writeError(w)
 				return
 			}
 
-			var userToken models.UserToken
+			c := context.WithValue(r.Context(), ctx.UserKey, user)
 
-			if err := db.Where(&models.UserToken{Token: rawToken}).Preload("User").First(&userToken).Error; err != nil {
-				writeError(w)
-				return
-			}
-
-			// check if found token has expired
-			if userToken.ExpiresAt.Before(time.Now()) {
-				db.Delete(userToken)
-				writeError(w)
-				return
-			}
-
-			ctx := context.WithValue(r.Context(), ctx.TokenKey, userToken)
-
-			next.ServeHTTP(w, r.WithContext(ctx))
+			next.ServeHTTP(w, r.WithContext(c))
 		}
 
 		return http.HandlerFunc(fn)
