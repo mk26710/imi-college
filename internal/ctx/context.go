@@ -6,27 +6,13 @@ import (
 	"net/http"
 )
 
-var ErrUserTokenNotFound error = errors.New("request had no user token in context")
-var ErrUserDataUnattached error = errors.New("user data was not attached to token")
-
-func GetToken(r *http.Request) (models.UserToken, error) {
-	token, ok := r.Context().Value(TokenKey).(models.UserToken)
-	if !ok {
-		return models.UserToken{}, ErrUserTokenNotFound
-	}
-
-	return token, nil
-}
+var ErrUserNotFound error = errors.New("user data is not attached to request context")
 
 func GetCurrentUser(r *http.Request) (models.User, error) {
-	token, err := GetToken(r)
-	if err != nil {
-		return models.User{}, err
+	user, ok := r.Context().Value(UserKey).(models.User)
+	if !ok {
+		return models.User{}, ErrUserNotFound
 	}
 
-	if token.UserID != token.User.ID {
-		return models.User{}, ErrUserDataUnattached
-	}
-
-	return token.User, nil
+	return user, nil
 }
