@@ -26,10 +26,6 @@ type NewSessionBody struct {
 	Password string `json:"password" validate:"required,gte=6,lte=72"`
 }
 
-func NewTokensHandler(db *gorm.DB) *TokensHandler {
-	return &TokensHandler{db}
-}
-
 // POST /tokens
 //
 // allows guests to authenticate their requests

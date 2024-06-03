@@ -18,22 +18,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type RoutesHandlers struct {
-	User      *handlers.UserHandler
-	Tokens    *handlers.TokensHandler
-	File      *handlers.FilesHandler
-	Documents *handlers.DocumentsHandler
-}
-
-func CreateHandlers(db *gorm.DB) RoutesHandlers {
-	return RoutesHandlers{
-		User:      handlers.NewUserHandler(db),
-		Tokens:    handlers.NewTokensHandler(db),
-		File:      handlers.NewFilesHandler(db),
-		Documents: handlers.NewDocmentsHandler(db),
-	}
-}
-
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Error loading .env file")
@@ -58,23 +42,30 @@ func main() {
 		MaxAge:           300,
 	}))
 
-	h := CreateHandlers(db)
+	h := handlers.Create(db)
 
 	// Public routes group
 	r.Group(func(r chi.Router) {
-		r.Post("/users", handlers.APIHandler(h.User.Create))
+		r.Post("/users", handlers.APIHandler(h.Users.Create))
 		r.Post("/tokens", handlers.APIHandler(h.Tokens.Create))
 		r.Delete("/tokens", handlers.APIHandler(h.Tokens.Delete))
+
+		r.Group(func(r chi.Router) {
+			r.Get("/dictionaries/regions", handlers.APIHandler(h.Dictionaries.ReadRegions))
+			r.Get("/dictionaries/towntypes", handlers.APIHandler(h.Dictionaries.ReadTownTypes))
+		})
 	})
 
 	// Authentication required
 	r.Group(func(r chi.Router) {
 		r.Use(mw.RequireUser(db))
 
-		r.Get("/users/@me", handlers.APIHandler(h.User.ReadMe))
-		r.With(mw.RequirePermissions(enum.PermissionViewUser)).Get("/users/{id}", handlers.APIHandler(h.User.Read))
+		r.Get("/users/@me", handlers.APIHandler(h.Users.ReadMe))
+		r.Get("/users/@me/address", handlers.APIHandler(h.Address.ReadMe))
 
-		r.Post("/files", handlers.APIHandler(h.File.CreateFile))
+		r.With(mw.RequirePermissions(enum.PermissionViewUser)).Get("/users/{id}", handlers.APIHandler(h.Users.Read))
+
+		r.Post("/files", handlers.APIHandler(h.Files.CreateFile))
 
 		r.Post("/documents/identity", handlers.APIHandler(h.Documents.CreateDocumentIdentity))
 	})

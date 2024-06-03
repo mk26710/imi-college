@@ -19,10 +19,6 @@ type DocumentsHandler struct {
 	db *gorm.DB
 }
 
-func NewDocmentsHandler(db *gorm.DB) *DocumentsHandler {
-	return &DocumentsHandler{db}
-}
-
 type CreateDocumentIdentityBody struct {
 	TypeID        int       `json:"typeId" validate:"required"`
 	Series        string    `json:"series" validate:"required,gte=2,lte=8"`

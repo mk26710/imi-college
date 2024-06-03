@@ -82,10 +82,6 @@ type FilesHandler struct {
 	db *gorm.DB
 }
 
-func NewFilesHandler(db *gorm.DB) *FilesHandler {
-	return &FilesHandler{db}
-}
-
 // This handler requires a request body to be a form
 func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error {
 	user, err := ctx.GetCurrentUser(r)

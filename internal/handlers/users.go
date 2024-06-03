@@ -23,10 +23,6 @@ type UserHandler struct {
 	db *gorm.DB
 }
 
-func NewUserHandler(db *gorm.DB) *UserHandler {
-	return &UserHandler{db}
-}
-
 type CreateUserBody struct {
 	FirstName  string    `json:"firstName" validate:"required,gte=2"`
 	MiddleName string    `json:"middleName" validate:"required,gte=2"`
