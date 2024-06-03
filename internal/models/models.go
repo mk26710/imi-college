@@ -80,6 +80,7 @@ type UserAddress struct {
 	TownType   DictTownType `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	TownTypeID int          `gorm:"not null;" json:"townTypeId"`
 	Town       string       `gorm:"not null;" json:"town"`
+	Address    string       `gorm:"not null;" json:"address"`
 	PostCode   string       `gorm:"not null;" json:"postCode"`
 }
 
@@ -138,17 +139,17 @@ type DictNationality struct {
 }
 
 type DictRegion struct {
-	ID           int            `gorm:"not null;primaryKey;" json:"id"`
-	RegionID     int            `gorm:"not null;uniqueIndex;" json:"regionId"`
-	Value        string         `gorm:"not null;" json:"value"`
-	DisplayValue sql.NullString `json:"displayValue"`
-	SortPriority int            `gorm:"not null;default:0;" json:"sortPriority"`
+	ID           int     `gorm:"not null;primaryKey;" json:"id"`
+	RegionID     int     `gorm:"not null;uniqueIndex;" json:"regionId"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
+	SortPriority int     `gorm:"not null;default:0;" json:"sortPriority"`
 }
 
 type DictTownType struct {
-	ID           int            `gorm:"not null;primaryKey;" json:"id"`
-	Value        string         `gorm:"not null;" json:"value"`
-	DisplayValue sql.NullString `json:"displayValue"`
+	ID           int     `gorm:"not null;primaryKey;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
 }
 
 type DictGender struct {
