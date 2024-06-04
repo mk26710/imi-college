@@ -40,6 +40,7 @@ type User struct {
 	NeedsDorm   bool         `gorm:"not null;default:false;" json:"needsDorm"`
 	Permissions int64        `gorm:"not null;default:0;" json:"permissions,string"`
 	Details     *UserDetails `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"details"`
+	Address     *UserAddress `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"address"`
 }
 
 type Password struct {
@@ -73,11 +74,10 @@ type UserDetails struct {
 
 type UserAddress struct {
 	ID         uuid.UUID    `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
-	User       User         `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	UserID     uuid.UUID    `gorm:"not null;type:uuid;" json:"userId"`
-	Region     DictRegion   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	UserID     uuid.UUID    `gorm:"not null;uniqueIndex;type:uuid;" json:"userId"`
+	Region     DictRegion   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"region"`
 	RegionID   int          `gorm:"not null;" json:"regionId"`
-	TownType   DictTownType `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	TownType   DictTownType `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"townType"`
 	TownTypeID int          `gorm:"not null;" json:"townTypeId"`
 	Town       string       `gorm:"not null;" json:"town"`
 	Address    string       `gorm:"not null;" json:"address"`
