@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 	"imi/college/internal/ctx"
-	"imi/college/internal/models"
+	"imi/college/internal/query"
 	"imi/college/internal/writer"
 	"net/http"
 
@@ -21,9 +21,8 @@ func (h *AddressHandler) ReadMe(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	var addr models.UserAddress
-
-	if err := h.db.Where(&models.UserAddress{UserID: user.ID}).First(&addr).Error; err != nil {
+	addr, err := query.GetUserAddressByUserID(h.db, user.ID)
+	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return NotFound()
 		}
