@@ -4,6 +4,7 @@ import (
 	"imi/college/internal/models"
 	"imi/college/internal/writer"
 	"net/http"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -20,9 +21,11 @@ func (h *DictionariesHandler) ReadTownTypes(w http.ResponseWriter, r *http.Reque
 		return err
 	}
 
+	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
 	return writer.JSON(w, http.StatusOK, data)
 }
 
+// GET /dictionaries/regions
 func (h *DictionariesHandler) ReadRegions(w http.ResponseWriter, r *http.Request) error {
 	var data []models.DictRegion
 
@@ -30,5 +33,6 @@ func (h *DictionariesHandler) ReadRegions(w http.ResponseWriter, r *http.Request
 		return err
 	}
 
+	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
 	return writer.JSON(w, http.StatusOK, data)
 }
