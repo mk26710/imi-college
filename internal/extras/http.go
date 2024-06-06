@@ -54,6 +54,10 @@ func GetTargetUserFromPathValue(db *gorm.DB, r *http.Request, param string) (mod
 		return models.User{}, err
 	}
 
+	if id == currentUser.ID {
+		return currentUser, nil
+	}
+
 	user, err := query.GetUserByID(db, id)
 	if err != nil {
 		return models.User{}, err
