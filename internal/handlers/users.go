@@ -7,14 +7,13 @@ import (
 	"imi/college/internal/ctx"
 	"imi/college/internal/extras"
 	"imi/college/internal/models"
-	"imi/college/internal/query"
+	"imi/college/internal/permissions"
 	"imi/college/internal/validation"
 	"imi/college/internal/writer"
 	"net/http"
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -115,36 +114,28 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	return writer.JSON(w, http.StatusOK, user)
 }
 
-// GET /users/@me
+// GET /users/{id}
 //
-// special endpoint to read user data about currently authenticated
-func (h *UserHandler) ReadMe(w http.ResponseWriter, r *http.Request) error {
-	user, err := ctx.GetCurrentUser(r)
+// provides information about requested user
+func (h *UserHandler) Read(w http.ResponseWriter, r *http.Request) error {
+	currentUser, err := ctx.GetCurrentUser(r)
 	if err != nil {
 		return err
 	}
 
-	return writer.JSON(w, http.StatusOK, user)
-}
-
-// GET /users/{id}
-//
-// provides information about requested user by ID (uuid)
-func (h *UserHandler) Read(w http.ResponseWriter, r *http.Request) error {
-	pathValueID := r.PathValue("id")
-	if len(pathValueID) == 0 {
-		return BadRequest("user ID path parameter not found")
-	}
-
-	id, err := uuid.Parse(pathValueID)
+	targetUser, err := extras.GetTargetUserFromPathValue(h.db, r, "id")
 	if err != nil {
-		return BadRequest("provided user ID is incorrect")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return NotFound()
+		}
+		return err
 	}
 
-	user, err := query.GetUserByID(h.db, id)
-	if err != nil {
-		return NotFound()
+	if targetUser.ID != currentUser.ID {
+		if !permissions.HasViewUser(currentUser.Permissions) {
+			return Forbidden()
+		}
 	}
 
-	return writer.JSON(w, http.StatusOK, user)
+	return writer.JSON(w, http.StatusOK, targetUser)
 }

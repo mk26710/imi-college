@@ -5,7 +5,6 @@ import (
 	"imi/college/internal/handlers"
 	mw "imi/college/internal/middleware"
 	"imi/college/internal/models"
-	"imi/college/internal/permissions"
 	"log"
 	"net/http"
 
@@ -60,12 +59,10 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(mw.RequireUser(db))
 
-		r.Get("/users/@me", handlers.APIHandler(h.Users.ReadMe))
+		r.Get("/users/{id}", handlers.APIHandler(h.Users.Read))
 
 		r.Get("/users/@me/address", handlers.APIHandler(h.Address.ReadMe))
 		r.Put("/users/{id}/address", handlers.APIHandler(h.Address.CreateOrUpdate))
-
-		r.With(mw.RequirePermissions(permissions.PermissionViewUser)).Get("/users/{id}", handlers.APIHandler(h.Users.Read))
 
 		r.Post("/files", handlers.APIHandler(h.Files.CreateFile))
 
