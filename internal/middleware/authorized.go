@@ -3,9 +3,9 @@ package middleware
 import (
 	"context"
 	"imi/college/internal/ctx"
-	"imi/college/internal/enum"
 	"imi/college/internal/extras"
 	"imi/college/internal/handlers"
+	"imi/college/internal/permissions"
 	"imi/college/internal/writer"
 	"net/http"
 
@@ -49,12 +49,12 @@ func RequirePermissions(required int64) func(next http.Handler) http.Handler {
 				return
 			}
 
-			if enum.HasPermissions(user.Permissions, enum.PermissionAdmin) {
+			if permissions.HasPermissions(user.Permissions, permissions.PermissionAdmin) {
 				next.ServeHTTP(w, r)
 				return
 			}
 
-			if enum.HasPermissions(user.Permissions, required) {
+			if permissions.HasPermissions(user.Permissions, required) {
 				next.ServeHTTP(w, r)
 				return
 			}

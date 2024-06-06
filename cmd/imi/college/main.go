@@ -1,11 +1,11 @@
 package main
 
 import (
-	"imi/college/internal/enum"
 	"imi/college/internal/env"
 	"imi/college/internal/handlers"
 	mw "imi/college/internal/middleware"
 	"imi/college/internal/models"
+	"imi/college/internal/permissions"
 	"log"
 	"net/http"
 
@@ -65,7 +65,7 @@ func main() {
 		r.Get("/users/@me/address", handlers.APIHandler(h.Address.ReadMe))
 		r.Put("/users/@me/address", handlers.APIHandler(h.Address.CreateOrUpdateMe))
 
-		r.With(mw.RequirePermissions(enum.PermissionViewUser)).Get("/users/{id}", handlers.APIHandler(h.Users.Read))
+		r.With(mw.RequirePermissions(permissions.PermissionViewUser)).Get("/users/{id}", handlers.APIHandler(h.Users.Read))
 
 		r.Post("/files", handlers.APIHandler(h.Files.CreateFile))
 

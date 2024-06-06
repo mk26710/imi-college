@@ -1,4 +1,4 @@
-package enum
+package permissions
 
 const (
 	// allows to view any user
@@ -13,6 +13,11 @@ const (
 )
 
 func HasPermissions(target int64, required int64) bool {
+	// admins have full access
+	if (target & PermissionAdmin) == PermissionAdmin {
+		return true
+	}
+
 	return (target & required) == required
 }
 
