@@ -63,7 +63,7 @@ func main() {
 		r.Get("/users/@me", handlers.APIHandler(h.Users.ReadMe))
 
 		r.Get("/users/@me/address", handlers.APIHandler(h.Address.ReadMe))
-		r.Put("/users/@me/address", handlers.APIHandler(h.Address.CreateOrUpdateMe))
+		r.Put("/users/{id}/address", handlers.APIHandler(h.Address.CreateOrUpdate))
 
 		r.With(mw.RequirePermissions(permissions.PermissionViewUser)).Get("/users/{id}", handlers.APIHandler(h.Users.Read))
 

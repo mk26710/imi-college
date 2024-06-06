@@ -5,7 +5,9 @@ import (
 	"errors"
 	"imi/college/internal/checks"
 	"imi/college/internal/ctx"
+	"imi/college/internal/extras"
 	"imi/college/internal/models"
+	"imi/college/internal/permissions"
 	"imi/college/internal/query"
 	"imi/college/internal/validation"
 	"imi/college/internal/writer"
@@ -46,7 +48,7 @@ type AddressBody struct {
 	PostCode   string `json:"postCode" validate:"required"`
 }
 
-func (h *AddressHandler) CreateOrUpdateMe(w http.ResponseWriter, r *http.Request) error {
+func (h *AddressHandler) CreateOrUpdate(w http.ResponseWriter, r *http.Request) error {
 	if !checks.IsJson(r) {
 		return BadRequest("JSON body required")
 	}
@@ -54,6 +56,20 @@ func (h *AddressHandler) CreateOrUpdateMe(w http.ResponseWriter, r *http.Request
 	currentUser, err := ctx.GetCurrentUser(r)
 	if err != nil {
 		return err
+	}
+
+	targetUser, err := extras.GetTargetUserFromPathValue(h.db, r, "id")
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return NotFound()
+		}
+		return err
+	}
+
+	if targetUser.ID != currentUser.ID {
+		if !permissions.HasPermissions(currentUser.Permissions, permissions.PermissionEditUser) {
+			return Forbidden()
+		}
 	}
 
 	defer r.Body.Close()
@@ -76,7 +92,7 @@ func (h *AddressHandler) CreateOrUpdateMe(w http.ResponseWriter, r *http.Request
 	}
 
 	newAddr := models.UserAddress{
-		UserID:     currentUser.ID,
+		UserID:     targetUser.ID,
 		RegionID:   body.RegionID,
 		TownTypeID: body.TownTypeID,
 		Town:       body.Town,
