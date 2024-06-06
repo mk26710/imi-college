@@ -67,7 +67,7 @@ func (h *AddressHandler) CreateOrUpdate(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if targetUser.ID != currentUser.ID {
-		if !permissions.HasPermissions(currentUser.Permissions, permissions.PermissionEditUser) {
+		if !permissions.HasEditUser(currentUser.Permissions) {
 			return Forbidden()
 		}
 	}
