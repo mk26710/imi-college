@@ -17,8 +17,23 @@ func HasPermissions(target int64, required int64) bool {
 	if (target & PermissionAdmin) == PermissionAdmin {
 		return true
 	}
-
 	return (target & required) == required
+}
+
+func HasViewUser(target int64) bool {
+	return HasPermissions(target, PermissionViewUser)
+}
+
+func HasEditUser(target int64) bool {
+	return HasPermissions(target, PermissionEditUser)
+}
+
+func HasDeleteUser(target int64) bool {
+	return HasPermissions(target, PermissionDeleteUser)
+}
+
+func HasAdmin(target int64) bool {
+	return HasPermissions(target, PermissionAdmin)
 }
 
 type PermissionTable struct {
