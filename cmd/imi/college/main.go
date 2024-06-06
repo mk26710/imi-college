@@ -61,7 +61,9 @@ func main() {
 		r.Use(mw.RequireUser(db))
 
 		r.Get("/users/@me", handlers.APIHandler(h.Users.ReadMe))
+
 		r.Get("/users/@me/address", handlers.APIHandler(h.Address.ReadMe))
+		r.Put("/users/@me/address", handlers.APIHandler(h.Address.CreateOrUpdateMe))
 
 		r.With(mw.RequirePermissions(enum.PermissionViewUser)).Get("/users/{id}", handlers.APIHandler(h.Users.Read))
 
