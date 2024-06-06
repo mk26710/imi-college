@@ -20,7 +20,7 @@ func writeError(w http.ResponseWriter) {
 func RequireUser(db *gorm.DB) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			user, err := extras.UserFromHttp(db, r)
+			user, err := extras.GetCurrentUser(db, r)
 			if err != nil {
 				writeError(w)
 				return
