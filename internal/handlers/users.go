@@ -41,7 +41,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return httpx.MalformedJSON()
 	}
 
-	if _, err := extras.GetCurrentUser(h.db, r); err == nil {
+	if _, err := extras.GetCurrentUserFromRequest(h.db, r); err == nil {
 		return httpx.BadRequest("authenticated users cannot create new accounts")
 	}
 

@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetCurrentUser(db *gorm.DB, r *http.Request) (models.User, error) {
+func GetCurrentUserFromRequest(db *gorm.DB, r *http.Request) (models.User, error) {
 	rawToken, err := security.ExtractToken(r)
 	if err != nil {
 		return models.User{}, err
