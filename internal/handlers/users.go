@@ -5,7 +5,6 @@ import (
 	"errors"
 	"imi/college/internal/checks"
 	"imi/college/internal/ctx"
-	"imi/college/internal/extras"
 	"imi/college/internal/httpx"
 	"imi/college/internal/models"
 	"imi/college/internal/permissions"
@@ -41,7 +40,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 		return httpx.MalformedJSON()
 	}
 
-	if _, err := extras.GetCurrentUserFromRequest(h.db, r); err == nil {
+	if _, err := httpx.GetCurrentUserFromRequest(h.db, r); err == nil {
 		return httpx.BadRequest("authenticated users cannot create new accounts")
 	}
 
@@ -124,7 +123,7 @@ func (h *UserHandler) Read(w http.ResponseWriter, r *http.Request) error {
 		return err
 	}
 
-	targetUser, err := extras.GetTargetUserFromPathValue(h.db, r, "id")
+	targetUser, err := httpx.GetTargetUserFromPathValue(h.db, r, "id")
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return httpx.NotFound()

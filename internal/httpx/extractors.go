@@ -1,4 +1,4 @@
-package extras
+package httpx
 
 import (
 	"fmt"

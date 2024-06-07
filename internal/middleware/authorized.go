@@ -3,7 +3,6 @@ package middleware
 import (
 	"context"
 	"imi/college/internal/ctx"
-	"imi/college/internal/extras"
 	"imi/college/internal/httpx"
 	"imi/college/internal/permissions"
 	"imi/college/internal/writer"
@@ -20,7 +19,7 @@ func writeError(w http.ResponseWriter) {
 func RequireUser(db *gorm.DB) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			user, err := extras.GetCurrentUserFromRequest(db, r)
+			user, err := httpx.GetCurrentUserFromRequest(db, r)
 			if err != nil {
 				writeError(w)
 				return
