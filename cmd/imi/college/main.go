@@ -61,7 +61,7 @@ func main() {
 
 		r.Get("/users/{id}", handlers.APIHandler(h.Users.Read))
 
-		r.Get("/users/@me/address", handlers.APIHandler(h.Address.ReadMe))
+		r.Get("/users/{id}/address", handlers.APIHandler(h.Address.Read))
 		r.Put("/users/{id}/address", handlers.APIHandler(h.Address.CreateOrUpdate))
 
 		r.Post("/files", handlers.APIHandler(h.Files.CreateFile))

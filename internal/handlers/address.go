@@ -22,14 +22,27 @@ type AddressHandler struct {
 	db *gorm.DB
 }
 
-// GET /users/@me/address
-func (h *AddressHandler) ReadMe(w http.ResponseWriter, r *http.Request) error {
-	user, err := ctx.GetCurrentUser(r)
+func (h *AddressHandler) Read(w http.ResponseWriter, r *http.Request) error {
+	currentUser, err := ctx.GetCurrentUser(r)
 	if err != nil {
 		return err
 	}
 
-	addr, err := query.GetUserAddressByUserID(h.db, user.ID)
+	targetUser, err := extras.GetTargetUserFromPathValue(h.db, r, "id")
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return NotFound()
+		}
+		return err
+	}
+
+	if targetUser.ID != currentUser.ID {
+		if !permissions.HasViewUser(currentUser.Permissions) {
+			return Forbidden()
+		}
+	}
+
+	addr, err := query.GetUserAddressByUserID(h.db, targetUser.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return NotFound()
