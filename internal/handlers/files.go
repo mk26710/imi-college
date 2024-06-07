@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"imi/college/internal/ctx"
+	"imi/college/internal/httpx"
 	"imi/college/internal/writer"
 	"io"
 	"mime/multipart"
@@ -37,7 +38,7 @@ func ValidateImageType(file multipart.File) (string, error) {
 	case "image/png", "image/jpeg", "image/jpg":
 		return mime, nil
 	default:
-		return "", UnprocessableEntity()
+		return "", httpx.UnprocessableEntity()
 	}
 }
 
@@ -97,7 +98,7 @@ func (h *FilesHandler) CreateFile(w http.ResponseWriter, r *http.Request) error 
 	attachment, handler, err := r.FormFile("attachment")
 	if err != nil {
 		if _, ok := err.(*http.MaxBytesError); ok {
-			return TooLarge()
+			return httpx.TooLarge()
 		}
 		return err
 	}

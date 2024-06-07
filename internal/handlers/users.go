@@ -6,6 +6,7 @@ import (
 	"imi/college/internal/checks"
 	"imi/college/internal/ctx"
 	"imi/college/internal/extras"
+	"imi/college/internal/httpx"
 	"imi/college/internal/models"
 	"imi/college/internal/permissions"
 	"imi/college/internal/validation"
@@ -37,11 +38,11 @@ type CreateUserBody struct {
 
 func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	if !checks.IsJson(r) {
-		return MalformedJSON()
+		return httpx.MalformedJSON()
 	}
 
 	if _, err := extras.GetCurrentUser(h.db, r); err == nil {
-		return BadRequest("authenticated users cannot create new accounts")
+		return httpx.BadRequest("authenticated users cannot create new accounts")
 	}
 
 	var body CreateUserBody
@@ -52,13 +53,13 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	decoder.DisallowUnknownFields()
 
 	if err := decoder.Decode(&body); err != nil {
-		return MalformedJSON()
+		return httpx.MalformedJSON()
 	}
 
 	validate := validation.NewValidator()
 	if err := validate.Struct(body); err != nil {
 		if cause, ok := err.(validator.ValidationErrors); ok {
-			return InvalidRequest(cause)
+			return httpx.InvalidRequest(cause)
 		}
 		return err
 	}
@@ -106,7 +107,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 	if err := h.db.Transaction(txFn); err != nil {
 		if errors.Is(err, gorm.ErrDuplicatedKey) {
-			return BadRequest("this email or username is already taken")
+			return httpx.BadRequest("this email or username is already taken")
 		}
 		return err
 	}
@@ -126,14 +127,14 @@ func (h *UserHandler) Read(w http.ResponseWriter, r *http.Request) error {
 	targetUser, err := extras.GetTargetUserFromPathValue(h.db, r, "id")
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return NotFound()
+			return httpx.NotFound()
 		}
 		return err
 	}
 
 	if targetUser.ID != currentUser.ID {
 		if !permissions.HasViewUser(currentUser.Permissions) {
-			return Forbidden()
+			return httpx.Forbidden()
 		}
 	}
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"imi/college/internal/checks"
 	"imi/college/internal/env"
+	"imi/college/internal/httpx"
 	"imi/college/internal/models"
 	"imi/college/internal/security"
 	"imi/college/internal/writer"
@@ -31,7 +32,7 @@ type NewSessionBody struct {
 // allows guests to authenticate their requests
 func (h *TokensHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	if !checks.IsJson(r) {
-		return MalformedJSON()
+		return httpx.MalformedJSON()
 	}
 
 	var body NewSessionBody
@@ -48,7 +49,7 @@ func (h *TokensHandler) Create(w http.ResponseWriter, r *http.Request) error {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(body); err != nil {
 		if cause, casted := err.(validator.ValidationErrors); casted {
-			return InvalidRequest(cause)
+			return httpx.InvalidRequest(cause)
 		}
 		return err
 	}
@@ -57,7 +58,7 @@ func (h *TokensHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 	if err := h.db.Where(&models.User{UserName: body.UserName}).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return InvalidCredentials(err)
+			return httpx.InvalidCredentials(err)
 		}
 		return err
 	}
@@ -70,7 +71,7 @@ func (h *TokensHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 	if err := bcrypt.CompareHashAndPassword([]byte(password.Hash), []byte(body.Password)); err != nil {
 		if errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
-			return InvalidCredentials(err)
+			return httpx.InvalidCredentials(err)
 		}
 		return err
 	}
@@ -115,7 +116,7 @@ func (h *TokensHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 	inputToken, err := security.ExtractToken(r)
 	if err != nil {
 		if errors.Is(err, security.ErrTokenNotFound) {
-			return BadRequest("authentication token not attached to the request")
+			return httpx.BadRequest("authentication token not attached to the request")
 		}
 		return err
 	}
@@ -136,7 +137,7 @@ func (h *TokensHandler) Delete(w http.ResponseWriter, r *http.Request) error {
 
 	if err := h.db.Transaction(txFn); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return BadRequest("invalid token")
+			return httpx.BadRequest("invalid token")
 		}
 		return err
 	}

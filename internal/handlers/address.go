@@ -6,6 +6,7 @@ import (
 	"imi/college/internal/checks"
 	"imi/college/internal/ctx"
 	"imi/college/internal/extras"
+	"imi/college/internal/httpx"
 	"imi/college/internal/models"
 	"imi/college/internal/permissions"
 	"imi/college/internal/query"
@@ -31,21 +32,21 @@ func (h *AddressHandler) Read(w http.ResponseWriter, r *http.Request) error {
 	targetUser, err := extras.GetTargetUserFromPathValue(h.db, r, "id")
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return NotFound()
+			return httpx.NotFound()
 		}
 		return err
 	}
 
 	if targetUser.ID != currentUser.ID {
 		if !permissions.HasViewUser(currentUser.Permissions) {
-			return Forbidden()
+			return httpx.Forbidden()
 		}
 	}
 
 	addr, err := query.GetUserAddressByUserID(h.db, targetUser.ID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return NotFound()
+			return httpx.NotFound()
 		}
 		return err
 	}
@@ -63,7 +64,7 @@ type AddressBody struct {
 
 func (h *AddressHandler) CreateOrUpdate(w http.ResponseWriter, r *http.Request) error {
 	if !checks.IsJson(r) {
-		return BadRequest("JSON body required")
+		return httpx.BadRequest("JSON body required")
 	}
 
 	currentUser, err := ctx.GetCurrentUser(r)
@@ -74,14 +75,14 @@ func (h *AddressHandler) CreateOrUpdate(w http.ResponseWriter, r *http.Request) 
 	targetUser, err := extras.GetTargetUserFromPathValue(h.db, r, "id")
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return NotFound()
+			return httpx.NotFound()
 		}
 		return err
 	}
 
 	if targetUser.ID != currentUser.ID {
 		if !permissions.HasEditUser(currentUser.Permissions) {
-			return Forbidden()
+			return httpx.Forbidden()
 		}
 	}
 
@@ -93,13 +94,13 @@ func (h *AddressHandler) CreateOrUpdate(w http.ResponseWriter, r *http.Request) 
 	var body AddressBody
 
 	if err := decoder.Decode(&body); err != nil {
-		return BadRequest("couldn't parse request body")
+		return httpx.BadRequest("couldn't parse request body")
 	}
 
 	validate := validation.NewValidator()
 	if err := validate.Struct(body); err != nil {
 		if cause, ok := err.(validator.ValidationErrors); ok {
-			return InvalidRequest(cause)
+			return httpx.InvalidRequest(cause)
 		}
 		return err
 	}

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"imi/college/internal/checks"
 	"imi/college/internal/ctx"
+	"imi/college/internal/httpx"
 	"imi/college/internal/models"
 	"imi/college/internal/validation"
 	"imi/college/internal/writer"
@@ -31,7 +32,7 @@ type CreateDocumentIdentityBody struct {
 
 func (h *DocumentsHandler) CreateDocumentIdentity(w http.ResponseWriter, r *http.Request) error {
 	if !checks.IsJson(r) {
-		return MalformedJSON()
+		return httpx.MalformedJSON()
 	}
 
 	user, err := ctx.GetCurrentUser(r)
@@ -53,7 +54,7 @@ func (h *DocumentsHandler) CreateDocumentIdentity(w http.ResponseWriter, r *http
 	validate := validation.NewValidator()
 	if err := validate.Struct(body); err != nil {
 		if cause, ok := err.(validator.ValidationErrors); ok {
-			return InvalidRequest(cause)
+			return httpx.InvalidRequest(cause)
 		}
 		return err
 	}

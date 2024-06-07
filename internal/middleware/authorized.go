@@ -4,7 +4,7 @@ import (
 	"context"
 	"imi/college/internal/ctx"
 	"imi/college/internal/extras"
-	"imi/college/internal/handlers"
+	"imi/college/internal/httpx"
 	"imi/college/internal/permissions"
 	"imi/college/internal/writer"
 	"net/http"
@@ -13,7 +13,7 @@ import (
 )
 
 func writeError(w http.ResponseWriter) {
-	data := handlers.Unauthorized()
+	data := httpx.Unauthorized()
 	writer.JSON(w, data.Status, data)
 }
 
@@ -36,7 +36,7 @@ func RequireUser(db *gorm.DB) func(next http.Handler) http.Handler {
 }
 
 func writeBadPermissions(w http.ResponseWriter) {
-	data := handlers.Forbidden()
+	data := httpx.Forbidden()
 	writer.JSON(w, data.Status, data)
 }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"imi/college/internal/env"
 	"imi/college/internal/handlers"
+	"imi/college/internal/httpx"
 	mw "imi/college/internal/middleware"
 	"imi/college/internal/models"
 	"log"
@@ -45,13 +46,13 @@ func main() {
 
 	// Public routes group
 	r.Group(func(r chi.Router) {
-		r.Post("/users", handlers.APIHandler(h.Users.Create))
-		r.Post("/tokens", handlers.APIHandler(h.Tokens.Create))
-		r.Delete("/tokens", handlers.APIHandler(h.Tokens.Delete))
+		r.Post("/users", httpx.APIHandler(h.Users.Create))
+		r.Post("/tokens", httpx.APIHandler(h.Tokens.Create))
+		r.Delete("/tokens", httpx.APIHandler(h.Tokens.Delete))
 
 		r.Group(func(r chi.Router) {
-			r.Get("/dictionaries/regions", handlers.APIHandler(h.Dictionaries.ReadRegions))
-			r.Get("/dictionaries/towntypes", handlers.APIHandler(h.Dictionaries.ReadTownTypes))
+			r.Get("/dictionaries/regions", httpx.APIHandler(h.Dictionaries.ReadRegions))
+			r.Get("/dictionaries/towntypes", httpx.APIHandler(h.Dictionaries.ReadTownTypes))
 		})
 	})
 
@@ -59,14 +60,14 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(mw.RequireUser(db))
 
-		r.Get("/users/{id}", handlers.APIHandler(h.Users.Read))
+		r.Get("/users/{id}", httpx.APIHandler(h.Users.Read))
 
-		r.Get("/users/{id}/address", handlers.APIHandler(h.Address.Read))
-		r.Put("/users/{id}/address", handlers.APIHandler(h.Address.CreateOrUpdate))
+		r.Get("/users/{id}/address", httpx.APIHandler(h.Address.Read))
+		r.Put("/users/{id}/address", httpx.APIHandler(h.Address.CreateOrUpdate))
 
-		r.Post("/files", handlers.APIHandler(h.Files.CreateFile))
+		r.Post("/files", httpx.APIHandler(h.Files.CreateFile))
 
-		r.Post("/documents/identity", handlers.APIHandler(h.Documents.CreateDocumentIdentity))
+		r.Post("/documents/identity", httpx.APIHandler(h.Documents.CreateDocumentIdentity))
 	})
 
 	srv := http.Server{
