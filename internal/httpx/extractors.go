@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"imi/college/internal/ctx"
 	"imi/college/internal/models"
+	"imi/college/internal/permissions"
 	"imi/college/internal/query"
 	"imi/college/internal/security"
 	"net/http"
@@ -64,4 +65,32 @@ func GetTargetUserFromPathValue(db *gorm.DB, r *http.Request, param string) (mod
 	}
 
 	return user, nil
+}
+
+// the function will try to get current user from request's context
+// and if current user is present it will try to get target user
+// from path parameter's value; once target user is acquired the
+// function will perform user acceess control check via permissions
+// by comparing current user's permissions with provided required
+// permissions
+//
+// intended for use with paths like /users/{id}, /users/{id}/address and etc.
+func GetUsersFromPathWithUAC(db *gorm.DB, r *http.Request, param string, required int64) (models.User, models.User, error) {
+	currentUser, err := ctx.GetCurrentUser(r)
+	if err != nil {
+		return models.User{}, models.User{}, err
+	}
+
+	targetUser, err := GetTargetUserFromPathValue(db, r, param)
+	if err != nil {
+		return models.User{}, models.User{}, err
+	}
+
+	if targetUser.ID != currentUser.ID {
+		if !permissions.HasPermissions(currentUser.Permissions, required) {
+			return models.User{}, models.User{}, Forbidden()
+		}
+	}
+
+	return currentUser, targetUser, nil
 }
