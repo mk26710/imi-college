@@ -39,7 +39,7 @@ type User struct {
 	IsVerified  bool         `gorm:"not null;default:false;" json:"isVerified"`
 	Permissions int64        `gorm:"not null;default:0;" json:"permissions,string"`
 	Details     *UserDetails `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"details"`
-	Address     *UserAddress `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"address"`
+	Address     *UserAddress `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 }
 
 type Password struct {
