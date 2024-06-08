@@ -37,7 +37,6 @@ type User struct {
 	UserName    string       `gorm:"not null;uniqueIndex;" json:"username"`
 	Email       string       `gorm:"not null;uniqueIndex;" json:"email"`
 	IsVerified  bool         `gorm:"not null;default:false;" json:"isVerified"`
-	NeedsDorm   bool         `gorm:"not null;default:false;" json:"needsDorm"`
 	Permissions int64        `gorm:"not null;default:0;" json:"permissions,string"`
 	Details     *UserDetails `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"details"`
 	Address     *UserAddress `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"address"`
@@ -70,6 +69,7 @@ type UserDetails struct {
 	Birthday   time.Time  `gorm:"not null;type:date;" json:"birthday"`
 	Tel        string     `gorm:"not null;" json:"tel"`
 	SNILS      *string    `json:"snils"`
+	NeedsDorm  bool       `gorm:"not null;default:false;" json:"needsDorm"`
 }
 
 type UserAddress struct {
