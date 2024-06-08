@@ -153,9 +153,9 @@ type DictTownType struct {
 }
 
 type DictGender struct {
-	ID           int            `gorm:"not null;primaryKey;" json:"id"`
-	Value        string         `gorm:"not null;" json:"value"`
-	DisplayValue sql.NullString `json:"displayValue"`
+	ID           int     `gorm:"not null;primaryKey;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
 }
 
 type CollegeMajor struct {
