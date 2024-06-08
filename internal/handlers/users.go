@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"imi/college/internal/checks"
-	"imi/college/internal/ctx"
 	"imi/college/internal/httpx"
 	"imi/college/internal/models"
 	"imi/college/internal/permissions"
@@ -118,23 +117,12 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 //
 // provides information about requested user
 func (h *UserHandler) Read(w http.ResponseWriter, r *http.Request) error {
-	currentUser, err := ctx.GetCurrentUser(r)
-	if err != nil {
-		return err
-	}
-
-	targetUser, err := httpx.GetTargetUserFromPathValue(h.db, r, "id")
+	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "id", permissions.PermissionViewUser)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return httpx.NotFound()
 		}
 		return err
-	}
-
-	if targetUser.ID != currentUser.ID {
-		if !permissions.HasViewUser(currentUser.Permissions) {
-			return httpx.Forbidden()
-		}
 	}
 
 	return writer.JSON(w, http.StatusOK, targetUser)

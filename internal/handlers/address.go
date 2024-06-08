@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"imi/college/internal/checks"
-	"imi/college/internal/ctx"
 	"imi/college/internal/httpx"
 	"imi/college/internal/models"
 	"imi/college/internal/permissions"
@@ -23,23 +22,12 @@ type AddressHandler struct {
 }
 
 func (h *AddressHandler) Read(w http.ResponseWriter, r *http.Request) error {
-	currentUser, err := ctx.GetCurrentUser(r)
-	if err != nil {
-		return err
-	}
-
-	targetUser, err := httpx.GetTargetUserFromPathValue(h.db, r, "id")
+	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "id", permissions.PermissionViewUser)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return httpx.NotFound()
 		}
 		return err
-	}
-
-	if targetUser.ID != currentUser.ID {
-		if !permissions.HasViewUser(currentUser.Permissions) {
-			return httpx.Forbidden()
-		}
 	}
 
 	addr, err := query.GetUserAddressByUserID(h.db, targetUser.ID)
@@ -66,23 +54,13 @@ func (h *AddressHandler) CreateOrUpdate(w http.ResponseWriter, r *http.Request) 
 		return httpx.BadRequest("JSON body required")
 	}
 
-	currentUser, err := ctx.GetCurrentUser(r)
-	if err != nil {
-		return err
-	}
-
-	targetUser, err := httpx.GetTargetUserFromPathValue(h.db, r, "id")
+	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "id", permissions.PermissionEditUser)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return httpx.NotFound()
 		}
 		return err
-	}
 
-	if targetUser.ID != currentUser.ID {
-		if !permissions.HasEditUser(currentUser.Permissions) {
-			return httpx.Forbidden()
-		}
 	}
 
 	defer r.Body.Close()
