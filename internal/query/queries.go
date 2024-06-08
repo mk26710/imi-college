@@ -8,8 +8,7 @@ import (
 )
 
 func ReadUserByID(db *gorm.DB, dest *models.User, id uuid.UUID) error {
-	// todo: not sure about joining address, might be a bad idea
-	return db.Where(&models.User{ID: id}).Joins("Details").Joins("Address").First(dest).Error
+	return db.Where(&models.User{ID: id}).Joins("Details").First(dest).Error
 }
 
 func GetUserByID(db *gorm.DB, id uuid.UUID) (models.User, error) {
