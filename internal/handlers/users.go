@@ -67,9 +67,8 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 
 	txFn := func(tx *gorm.DB) error {
 		user = models.User{
-			Email:     body.Email,
-			UserName:  body.UserName,
-			NeedsDorm: body.NeedsDorm,
+			Email:    body.Email,
+			UserName: body.UserName,
 		}
 
 		if err := tx.Create(&user).Error; err != nil {
@@ -84,6 +83,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 			GenderID:   body.GenderID,
 			Birthday:   body.Birthday,
 			Tel:        body.Tel,
+			NeedsDorm:  body.NeedsDorm,
 		}
 
 		if err := tx.Create(&details).Error; err != nil {
