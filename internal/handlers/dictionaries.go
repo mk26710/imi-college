@@ -36,3 +36,16 @@ func (h *DictionariesHandler) ReadRegions(w http.ResponseWriter, r *http.Request
 	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
 	return writer.JSON(w, http.StatusOK, data)
 }
+
+// GET /dictionaries/genders
+func (h *DictionariesHandler) ReadGenders(w http.ResponseWriter, r *http.Request) error {
+	var data []models.DictGender
+
+	if err := h.db.Model(models.DictGender{}).Find(&data).Error; err != nil {
+		return err
+	}
+
+	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
+
+	return writer.JSON(w, http.StatusOK, data)
+}

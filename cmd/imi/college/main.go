@@ -53,6 +53,7 @@ func main() {
 		r.Group(func(r chi.Router) {
 			r.Get("/dictionaries/regions", httpx.APIHandler(h.Dictionaries.ReadRegions))
 			r.Get("/dictionaries/towntypes", httpx.APIHandler(h.Dictionaries.ReadTownTypes))
+			r.Get("/dictionaries/genders", httpx.APIHandler(h.Dictionaries.ReadGenders))
 		})
 	})
 
