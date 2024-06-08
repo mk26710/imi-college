@@ -62,11 +62,10 @@ func main() {
 		r.Use(mw.RequireUser(db))
 
 		r.Get("/users/{id}", httpx.APIHandler(h.Users.Read))
-
-		r.Put("/users/{id}/details", httpx.APIHandler(h.Users.CreateOrUpdate))
-
 		r.Get("/users/{id}/address", httpx.APIHandler(h.Address.Read))
+
 		r.Put("/users/{id}/address", httpx.APIHandler(h.Address.CreateOrUpdate))
+		r.Put("/users/{id}/details", httpx.APIHandler(h.Users.CreateOrUpdate))
 
 		r.Post("/files", httpx.APIHandler(h.Files.CreateFile))
 
