@@ -64,6 +64,9 @@ func main() {
 		r.Get("/users/{id}", httpx.APIHandler(h.Users.Read))
 		r.Get("/users/{id}/address", httpx.APIHandler(h.Address.Read))
 
+		r.Get("/users/{userId}/documents/identity", httpx.APIHandler(h.Identities.Read))
+		r.Post("/users/{userId}/documents/identity", httpx.APIHandler(h.Identities.Create))
+
 		r.Put("/users/{id}/address", httpx.APIHandler(h.Address.CreateOrUpdate))
 		r.Put("/users/{id}/details", httpx.APIHandler(h.Users.CreateOrUpdate))
 
