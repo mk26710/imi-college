@@ -60,7 +60,6 @@ func (h *AddressHandler) CreateOrUpdate(w http.ResponseWriter, r *http.Request) 
 			return httpx.NotFound()
 		}
 		return err
-
 	}
 
 	defer r.Body.Close()
