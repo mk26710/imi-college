@@ -177,12 +177,10 @@ type IdentityDoc struct {
 	Series        string          `gorm:"not null;" json:"series"`
 	Number        string          `gorm:"not null;" json:"number"`
 	Issuer        string          `gorm:"not null;" json:"issuer"`
-	IssuedAt      time.Time       `gorm:"not null;" json:"issuedAt"`
+	IssuedAt      time.Time       `gorm:"not null;type:date;" json:"issuedAt"`
 	DivisionCode  string          `gorm:"not null;" json:"divisionCode"`
 	Nationality   DictNationality `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	NationalityID int             `gorm:"not null;" json:"nationalityId"`
-	File          UserFile        `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
-	FileID        uuid.NullUUID   `gorm:"type:uuid;" json:"fileId"`
 }
 
 type EducationDoc struct {
@@ -195,8 +193,8 @@ type EducationDoc struct {
 	Series         string         `gorm:"not null;" json:"series"`
 	Number         string         `gorm:"not null;" json:"number"`
 	Issuer         string         `gorm:"not null;" json:"issuer"`
-	IssuedAt       time.Time      `gorm:"not null;" json:"issuedAt"`
-	GradYear       uint8          `gorm:"not null;" json:"gradYear"`
+	IssuedAt       time.Time      `gorm:"not null;type:date;" json:"issuedAt"`
+	GradYear       int16          `gorm:"not null;" json:"gradYear"`
 	IssuerRegion   DictRegion     `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	IssuerRegionID int            `gorm:"not null;" json:"issuerRegionId"`
 }

@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -71,7 +70,6 @@ func (h *DocumentsHandler) CreateDocumentIdentity(w http.ResponseWriter, r *http
 			IssuedAt:      body.IssuedAt,
 			DivisionCode:  body.DivisionCode,
 			NationalityID: body.NationalityID,
-			FileID:        uuid.NullUUID{Valid: false},
 		}
 
 		if err := tx.Create(&doc).Error; err != nil {
