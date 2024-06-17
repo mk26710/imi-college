@@ -50,10 +50,10 @@ func main() {
 		r.Post("/tokens", httpx.APIHandler(h.Tokens.Create))
 		r.Delete("/tokens", httpx.APIHandler(h.Tokens.Delete))
 
-		r.Group(func(r chi.Router) {
-			r.Get("/dictionaries/regions", httpx.APIHandler(h.Dictionaries.ReadRegions))
-			r.Get("/dictionaries/towntypes", httpx.APIHandler(h.Dictionaries.ReadTownTypes))
-			r.Get("/dictionaries/genders", httpx.APIHandler(h.Dictionaries.ReadGenders))
+		r.Route("/dictionaries", func(r chi.Router) {
+			r.Get("/regions", httpx.APIHandler(h.Dictionaries.ReadRegions))
+			r.Get("/towntypes", httpx.APIHandler(h.Dictionaries.ReadTownTypes))
+			r.Get("/genders", httpx.APIHandler(h.Dictionaries.ReadGenders))
 		})
 	})
 
@@ -61,18 +61,20 @@ func main() {
 	r.Group(func(r chi.Router) {
 		r.Use(mw.RequireUser(db))
 
-		r.Get("/users/{id}", httpx.APIHandler(h.Users.Read))
-		r.Get("/users/{id}/address", httpx.APIHandler(h.Address.Read))
+		r.Route("/users/{userId}", func(r chi.Router) {
+			r.Get("/", httpx.APIHandler(h.Users.Read))
+			r.Put("/details", httpx.APIHandler(h.Users.PutDetails))
 
-		r.Get("/users/{userId}/documents/identity", httpx.APIHandler(h.Identities.Read))
-		r.Post("/users/{userId}/documents/identity", httpx.APIHandler(h.Identities.Create))
+			r.Get("/address", httpx.APIHandler(h.Address.Read))
+			r.Put("/address", httpx.APIHandler(h.Address.CreateOrUpdate))
 
-		r.Put("/users/{id}/address", httpx.APIHandler(h.Address.CreateOrUpdate))
-		r.Put("/users/{id}/details", httpx.APIHandler(h.Users.CreateOrUpdate))
+			r.Route("/documents", func(r chi.Router) {
+				r.Get("/identity", httpx.APIHandler(h.Identities.Read))
+				r.Post("/identity", httpx.APIHandler(h.Identities.Create))
+			})
+		})
 
 		r.Post("/files", httpx.APIHandler(h.Files.CreateFile))
-
-		r.Post("/documents/identity", httpx.APIHandler(h.Documents.CreateDocumentIdentity))
 	})
 
 	srv := http.Server{

@@ -117,7 +117,7 @@ func (h *UserHandler) Create(w http.ResponseWriter, r *http.Request) error {
 //
 // provides information about requested user
 func (h *UserHandler) Read(w http.ResponseWriter, r *http.Request) error {
-	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "id", permissions.PermissionViewUser)
+	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "userId", permissions.PermissionViewUser)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return httpx.NotFound()
@@ -140,12 +140,12 @@ type UpdateUserDetailsBody struct {
 }
 
 // PUT /users/{id}/details
-func (h *UserHandler) CreateOrUpdate(w http.ResponseWriter, r *http.Request) error {
+func (h *UserHandler) PutDetails(w http.ResponseWriter, r *http.Request) error {
 	if !checks.IsJson(r) {
 		return httpx.BadRequest("request must contain JSON body")
 	}
 
-	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "id", permissions.PermissionEditUser)
+	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "userId", permissions.PermissionEditUser)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return httpx.NotFound()

@@ -22,7 +22,7 @@ type AddressHandler struct {
 }
 
 func (h *AddressHandler) Read(w http.ResponseWriter, r *http.Request) error {
-	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "id", permissions.PermissionViewUser)
+	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "userId", permissions.PermissionViewUser)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return httpx.NotFound()
@@ -54,7 +54,7 @@ func (h *AddressHandler) CreateOrUpdate(w http.ResponseWriter, r *http.Request) 
 		return httpx.BadRequest("JSON body required")
 	}
 
-	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "id", permissions.PermissionEditUser)
+	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "userId", permissions.PermissionEditUser)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return httpx.NotFound()
