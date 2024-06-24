@@ -26,6 +26,7 @@ func AutoMigrate(db *gorm.DB) error {
 		&DictTownType{},
 		&DictGender{},
 		&CollegeMajor{},
+		&DocStatus{},
 		&IdentityDoc{},
 		&EducationDoc{},
 	)
@@ -87,6 +88,7 @@ type UserAddress struct {
 type UserFile struct {
 	ID           uuid.UUID `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
 	CreatedAt    time.Time `gorm:"not null;default:now();" json:"createdAt"`
+	SHA256       string    `gorm:"not null,uniqueIndex;" json:"sha256"`
 	User         User      `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	UserID       uuid.UUID `gorm:"not null;type:uuid;" json:"userId"`
 	MimeType     string    `gorm:"not null;" json:"mimeType"`
@@ -108,38 +110,39 @@ type Application struct {
 }
 
 type DictAppStatus struct {
-	ID           int            `gorm:"not null;primaryKey;" json:"id"`
-	Value        string         `gorm:"not null;" json:"value"`
-	DisplayValue sql.NullString `json:"displayValue"`
+	ID           int     `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
+	IsDefault    bool    `gorm:"not null;default:false;" json:"isDefault"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
 }
 
 type DictEduDocType struct {
-	ID           int            `gorm:"not null;primaryKey;" json:"id"`
-	Value        string         `gorm:"not null;" json:"value"`
-	DisplayValue sql.NullString `json:"displayValue"`
+	ID           int     `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
 }
 
 type DictIdDocType struct {
-	ID           int            `gorm:"not null;primaryKey;" json:"id"`
+	ID           int            `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
 	Value        string         `gorm:"not null;" json:"value"`
 	DisplayValue sql.NullString `json:"displayValue"`
 }
 
 type DictEduLevel struct {
-	ID           int            `gorm:"not null;primaryKey;" json:"id"`
+	ID           int            `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
 	Value        string         `gorm:"not null;" json:"value"`
 	DisplayValue sql.NullString `json:"displayValue"`
 }
 
 type DictNationality struct {
-	ID           int            `gorm:"not null;primaryKey;" json:"id"`
+	ID           int            `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
 	Value        string         `gorm:"not null;" json:"value"`
 	DisplayValue sql.NullString `json:"displayValue"`
 	SortPriority int            `gorm:"not null;default:0;" json:"sortPriority"`
 }
 
 type DictRegion struct {
-	ID           int     `gorm:"not null;primaryKey;" json:"id"`
+	ID           int     `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
 	RegionID     int     `gorm:"not null;uniqueIndex;" json:"regionId"`
 	Value        string  `gorm:"not null;" json:"value"`
 	DisplayValue *string `json:"displayValue"`
@@ -147,13 +150,13 @@ type DictRegion struct {
 }
 
 type DictTownType struct {
-	ID           int     `gorm:"not null;primaryKey;" json:"id"`
+	ID           int     `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
 	Value        string  `gorm:"not null;" json:"value"`
 	DisplayValue *string `json:"displayValue"`
 }
 
 type DictGender struct {
-	ID           int     `gorm:"not null;primaryKey;" json:"id"`
+	ID           int     `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
 	Value        string  `gorm:"not null;" json:"value"`
 	DisplayValue *string `json:"displayValue"`
 }
@@ -168,12 +171,21 @@ type CollegeMajor struct {
 	Code         string    `gorm:"not null;" json:"code"`
 }
 
+type DocStatus struct {
+	ID           int    `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
+	IsDefault    bool   `gorm:"not null;default:false;" json:"isDefault"`
+	Value        string `gorm:"not null;" json:"value"`
+	DisplayValue string `json:"displayValue"`
+}
+
 type IdentityDoc struct {
 	ID            uuid.UUID       `gorm:"not null;type:uuid;default:gen_random_uuid();" json:"id"`
 	User          User            `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	UserID        uuid.UUID       `gorm:"not null;type:uuid;" json:"userId"`
-	Type          DictIdDocType   `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	Type          DictIdDocType   `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"type"`
 	TypeID        int             `gorm:"not null;" json:"typeId"`
+	Status        DocStatus       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"status"`
+	StatusID      int             `json:"statusId"`
 	Series        string          `gorm:"not null;" json:"series"`
 	Number        string          `gorm:"not null;" json:"number"`
 	Issuer        string          `gorm:"not null;" json:"issuer"`
