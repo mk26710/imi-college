@@ -1,11 +1,33 @@
 package httpx
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
 )
+
+func Error(w http.ResponseWriter, cause error) error {
+	apiError, ok := cause.(APIError)
+	if !ok {
+		w.WriteHeader(http.StatusInternalServerError)
+		_, err := w.Write([]byte("Internal Server Error"))
+		return err
+	}
+
+	response, err := json.Marshal(apiError)
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(apiError.Status)
+	if _, err := w.Write(response); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 type APIError struct {
 	Status  int `json:"status"`
