@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -44,7 +45,7 @@ func GetTargetUserFromPathValue(db *gorm.DB, r *http.Request, param string) (mod
 		return models.User{}, err
 	}
 
-	pathValue := r.PathValue(param)
+	pathValue := chi.URLParam(r, param)
 
 	if pathValue == "@me" {
 		return currentUser, nil
