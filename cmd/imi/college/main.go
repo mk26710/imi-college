@@ -71,6 +71,9 @@ func main() {
 			r.Route("/documents", func(r chi.Router) {
 				r.Get("/identity", httpx.APIHandler(h.Identities.Read))
 				r.Post("/identity", httpx.APIHandler(h.Identities.Create))
+
+				r.Get("/education", httpx.APIHandler(h.Documents.Education.Read))
+				r.Post("/education", httpx.APIHandler(h.Documents.Education.Create))
 			})
 		})
 

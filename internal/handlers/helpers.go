@@ -11,6 +11,11 @@ type HandlersMap struct {
 	Address      AddressHandler
 	Files        FilesHandler
 	Identities   IdentityDocsHanlder
+	Documents    HandlersDocuments
+}
+
+type HandlersDocuments struct {
+	Education EducationDocsHandler
 }
 
 func Create(db *gorm.DB) HandlersMap {
@@ -25,5 +30,8 @@ func Create(db *gorm.DB) HandlersMap {
 		Address:      AddressHandler{db},
 		Files:        FilesHandler{db},
 		Identities:   IdentityDocsHanlder{db},
+		Documents: HandlersDocuments{
+			Education: EducationDocsHandler{db},
+		},
 	}
 }
