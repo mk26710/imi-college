@@ -105,7 +105,7 @@ type Application struct {
 	EduLevel   DictEduLevel  `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	EduLevelID int           `gorm:"not null;" json:"eduLevelId"`
 	Status     DictAppStatus `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
-	StatusID   int           `gorm:"not null;" json:"stateId"`
+	StatusID   int           `gorm:"not null;" json:"statusId"`
 	Priority   uint8         `gorm:"not null;default:1;" json:"priority"`
 }
 
@@ -129,9 +129,9 @@ type DictIdDocType struct {
 }
 
 type DictEduLevel struct {
-	ID           int            `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
-	Value        string         `gorm:"not null;" json:"value"`
-	DisplayValue sql.NullString `json:"displayValue"`
+	ID           int     `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
 }
 
 type DictNationality struct {
