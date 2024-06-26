@@ -41,3 +41,13 @@ func GetUserAddressByUserID(db *gorm.DB, userID uuid.UUID) (models.UserAddress, 
 
 	return addr, nil
 }
+
+func GetDefaultAppStatus(db *gorm.DB) (models.DictAppStatus, error) {
+	var status models.DictAppStatus
+
+	if err := db.Where(&models.DictAppStatus{IsDefault: true}).First(&status).Error; err != nil {
+		return models.DictAppStatus{}, err
+	}
+
+	return status, nil
+}
