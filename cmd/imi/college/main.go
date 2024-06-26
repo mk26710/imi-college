@@ -70,6 +70,11 @@ func main() {
 			r.Get("/address", httpx.APIHandler(h.Address.Read))
 			r.Put("/address", httpx.APIHandler(h.Address.CreateOrUpdate))
 
+			r.Route("/applications", func(r chi.Router) {
+				r.Get("/", httpx.APIHandler(h.Applications.Read))
+				r.Post("/", httpx.APIHandler(h.Applications.Create))
+			})
+
 			r.Route("/documents", func(r chi.Router) {
 				r.Get("/identity", httpx.APIHandler(h.Identities.Read))
 				r.Post("/identity", httpx.APIHandler(h.Identities.Create))
