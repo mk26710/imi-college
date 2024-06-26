@@ -54,6 +54,8 @@ func main() {
 			r.Get("/regions", httpx.APIHandler(h.Dictionaries.ReadRegions))
 			r.Get("/towntypes", httpx.APIHandler(h.Dictionaries.ReadTownTypes))
 			r.Get("/genders", httpx.APIHandler(h.Dictionaries.ReadGenders))
+			r.Get("/edulevels", httpx.APIHandler(h.Dictionaries.ReadEduLevels))
+			r.Get("/majors", httpx.APIHandler(h.Dictionaries.ReadMajors))
 		})
 	})
 

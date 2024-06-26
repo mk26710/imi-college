@@ -46,6 +46,29 @@ func (h *DictionariesHandler) ReadGenders(w http.ResponseWriter, r *http.Request
 	}
 
 	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
+	return writer.JSON(w, http.StatusOK, data)
+}
 
+// GET /dictionaries/edulevels
+func (h *DictionariesHandler) ReadEduLevels(w http.ResponseWriter, r *http.Request) error {
+	var data []models.DictEduLevel
+
+	if err := h.db.Model(models.DictEduLevel{}).Find(&data).Error; err != nil {
+		return err
+	}
+
+	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
+	return writer.JSON(w, http.StatusOK, data)
+}
+
+// GET /dictionaries/majors
+func (h *DictionariesHandler) ReadMajors(w http.ResponseWriter, r *http.Request) error {
+	var data []models.CollegeMajor
+
+	if err := h.db.Model(models.CollegeMajor{}).Find(&data).Error; err != nil {
+		return err
+	}
+
+	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
 	return writer.JSON(w, http.StatusOK, data)
 }
