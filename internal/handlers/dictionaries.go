@@ -72,3 +72,14 @@ func (h *DictionariesHandler) ReadMajors(w http.ResponseWriter, r *http.Request)
 	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
 	return writer.JSON(w, http.StatusOK, data)
 }
+
+func (h *DictionariesHandler) ReadAppStatuses(w http.ResponseWriter, r *http.Request) error {
+	var data []models.DictAppStatus
+
+	if err := h.db.Model(models.DictAppStatus{}).Find(&data).Error; err != nil {
+		return err
+	}
+
+	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
+	return writer.JSON(w, http.StatusOK, data)
+}
