@@ -98,14 +98,14 @@ type UserFile struct {
 type Application struct {
 	ID         uuid.UUID     `gorm:"not null;primaryKey;type:uuid;default:gen_random_uuid();" json:"id"`
 	CreatedAt  time.Time     `gorm:"not null;default:now();" json:"createdAt"`
-	User       User          `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	UserID     uuid.UUID     `gorm:"not null;type:uuid;" json:"userId"`
-	Major      CollegeMajor  `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	User       User          `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	MajorID    uuid.UUID     `gorm:"not null;type:uuid;" json:"majorId"`
-	EduLevel   DictEduLevel  `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	Major      CollegeMajor  `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	EduLevelID int           `gorm:"not null;" json:"eduLevelId"`
-	Status     DictAppStatus `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	EduLevel   DictEduLevel  `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	StatusID   int           `gorm:"not null;" json:"statusId"`
+	Status     DictAppStatus `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"status,omitempty"`
 	Priority   uint8         `gorm:"not null;default:1;" json:"priority"`
 }
 
@@ -180,35 +180,36 @@ type DocStatus struct {
 
 type IdentityDoc struct {
 	ID            uuid.UUID       `gorm:"not null;type:uuid;default:gen_random_uuid();" json:"id"`
-	User          User            `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	CreatedAt     time.Time       `gorm:"not null;default:now();" json:"createdAt"`
 	UserID        uuid.UUID       `gorm:"not null;type:uuid;" json:"userId"`
-	Status        DocStatus       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"status"`
+	User          User            `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	StatusID      int             `json:"statusId"`
-	Type          DictIdDocType   `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"type"`
+	Status        DocStatus       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"status"`
 	TypeID        int             `gorm:"not null;" json:"typeId"`
+	Type          DictIdDocType   `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"type"`
 	Series        string          `gorm:"not null;" json:"series"`
 	Number        string          `gorm:"not null;" json:"number"`
 	Issuer        string          `gorm:"not null;" json:"issuer"`
 	IssuedAt      time.Time       `gorm:"not null;type:date;" json:"issuedAt"`
 	DivisionCode  string          `gorm:"not null;" json:"divisionCode"`
-	Nationality   DictNationality `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	NationalityID int             `gorm:"not null;" json:"nationalityId"`
+	Nationality   DictNationality `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 }
 
 type EducationDoc struct {
 	ID             uuid.UUID      `gorm:"not null;type:uuid;default:gen_random_uuid();" json:"id"`
 	CreatedAt      time.Time      `gorm:"not null;default:now();" json:"createdAt"`
-	User           User           `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	UserID         uuid.UUID      `gorm:"not null;type:uuid;" json:"userId"`
-	Status         DocStatus      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"status"`
+	User           User           `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	StatusID       int            `json:"statusId"`
-	Type           DictEduDocType `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	Status         DocStatus      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"status"`
 	TypeID         int            `gorm:"not null;" json:"typeId"`
+	Type           DictEduDocType `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	Series         string         `gorm:"not null;" json:"series"`
 	Number         string         `gorm:"not null;" json:"number"`
 	Issuer         string         `gorm:"not null;" json:"issuer"`
 	IssuedAt       time.Time      `gorm:"not null;type:date;" json:"issuedAt"`
 	GradYear       int16          `gorm:"not null;" json:"gradYear"`
-	IssuerRegion   DictRegion     `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	IssuerRegionID int            `gorm:"not null;" json:"issuerRegionId"`
+	IssuerRegion   DictRegion     `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 }
