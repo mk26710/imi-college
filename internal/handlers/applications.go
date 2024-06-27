@@ -65,19 +65,36 @@ func (h *ApplicationsHandler) Create(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	status, err := query.GetDefaultAppStatus(h.db)
-	if err != nil {
-		return err
-	}
-
 	application := models.Application{
 		UserID:     targetUser.ID,
 		MajorID:    body.MajorID,
 		EduLevelID: body.EduLevelID,
-		StatusID:   status.ID,
 	}
 
-	if err := h.db.Create(&application).Error; err != nil {
+	txFn := func(tx *gorm.DB) error {
+		status, err := query.GetDefaultAppStatus(tx)
+		if err != nil {
+			return err
+		}
+
+		application.StatusID = status.ID
+
+		var topPriorityApp models.Application
+
+		if err := tx.Where(&models.Application{UserID: targetUser.ID}).Order("priority DESC").Limit(1).Find(&topPriorityApp).Error; err != nil {
+			return err
+		}
+
+		application.Priority = topPriorityApp.Priority + 1
+
+		if err := h.db.Create(&application).Error; err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	if err := h.db.Transaction(txFn); err != nil {
 		return err
 	}
 
