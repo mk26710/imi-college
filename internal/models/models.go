@@ -182,10 +182,10 @@ type IdentityDoc struct {
 	ID            uuid.UUID       `gorm:"not null;type:uuid;default:gen_random_uuid();" json:"id"`
 	User          User            `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	UserID        uuid.UUID       `gorm:"not null;type:uuid;" json:"userId"`
-	Type          DictIdDocType   `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"type"`
-	TypeID        int             `gorm:"not null;" json:"typeId"`
 	Status        DocStatus       `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"status"`
 	StatusID      int             `json:"statusId"`
+	Type          DictIdDocType   `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"type"`
+	TypeID        int             `gorm:"not null;" json:"typeId"`
 	Series        string          `gorm:"not null;" json:"series"`
 	Number        string          `gorm:"not null;" json:"number"`
 	Issuer        string          `gorm:"not null;" json:"issuer"`
@@ -200,6 +200,8 @@ type EducationDoc struct {
 	CreatedAt      time.Time      `gorm:"not null;default:now();" json:"createdAt"`
 	User           User           `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	UserID         uuid.UUID      `gorm:"not null;type:uuid;" json:"userId"`
+	Status         DocStatus      `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"status"`
+	StatusID       int            `json:"statusId"`
 	Type           DictEduDocType `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	TypeID         int            `gorm:"not null;" json:"typeId"`
 	Series         string         `gorm:"not null;" json:"series"`
