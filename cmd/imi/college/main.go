@@ -57,6 +57,8 @@ func main() {
 			r.Get("/edulevels", httpx.APIHandler(h.Dictionaries.ReadEduLevels))
 			r.Get("/majors", httpx.APIHandler(h.Dictionaries.ReadMajors))
 			r.Get("/appstatuses", httpx.APIHandler(h.Dictionaries.ReadAppStatuses))
+			r.Get("/iddoctypes", httpx.APIHandler(h.Dictionaries.ReadIdDocTypes))
+			r.Get("/edudoctypes", httpx.APIHandler(h.Dictionaries.ReadEduDocTypes))
 		})
 	})
 

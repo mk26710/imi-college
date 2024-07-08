@@ -73,10 +73,35 @@ func (h *DictionariesHandler) ReadMajors(w http.ResponseWriter, r *http.Request)
 	return writer.JSON(w, http.StatusOK, data)
 }
 
+// GET /dictionaries/appstatuses
 func (h *DictionariesHandler) ReadAppStatuses(w http.ResponseWriter, r *http.Request) error {
 	var data []models.DictAppStatus
 
 	if err := h.db.Model(models.DictAppStatus{}).Find(&data).Error; err != nil {
+		return err
+	}
+
+	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
+	return writer.JSON(w, http.StatusOK, data)
+}
+
+// GET /dictionaries/iddoctypes
+func (h *DictionariesHandler) ReadIdDocTypes(w http.ResponseWriter, r *http.Request) error {
+	var data []models.DictEduLevel
+
+	if err := h.db.Model(models.DictIdDocType{}).Find(&data).Error; err != nil {
+		return err
+	}
+
+	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
+	return writer.JSON(w, http.StatusOK, data)
+}
+
+// GET /dictionaries/iddoctypes
+func (h *DictionariesHandler) ReadEduDocTypes(w http.ResponseWriter, r *http.Request) error {
+	var data []models.DictEduLevel
+
+	if err := h.db.Model(models.DictEduDocType{}).Find(&data).Error; err != nil {
 		return err
 	}
 
