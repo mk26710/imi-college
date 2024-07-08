@@ -76,6 +76,10 @@ func main() {
 			r.Route("/applications", func(r chi.Router) {
 				r.Get("/", httpx.APIHandler(h.Applications.Read))
 				r.Post("/", httpx.APIHandler(h.Applications.Create))
+
+				r.Route("/{appId}", func(r chi.Router) {
+					r.Delete("/", httpx.APIHandler(h.Applications.Delete))
+				})
 			})
 
 			r.Route("/documents", func(r chi.Router) {

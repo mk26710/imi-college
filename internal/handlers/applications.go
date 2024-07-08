@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"imi/college/internal/httpx"
 	"imi/college/internal/models"
 	"imi/college/internal/permissions"
@@ -10,6 +11,7 @@ import (
 	"imi/college/internal/writer"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -99,4 +101,49 @@ func (h *ApplicationsHandler) Create(w http.ResponseWriter, r *http.Request) err
 	}
 
 	return writer.JSON(w, http.StatusOK, application)
+}
+
+// DELETE /users/{userId}/applications/{appId}
+func (h *ApplicationsHandler) Delete(w http.ResponseWriter, r *http.Request) error {
+	_, targetUser, err := httpx.GetUsersFromPathWithUAC(h.db, r, "userId", permissions.PermissionEditUser)
+	if err != nil {
+		return err
+	}
+
+	appId, err := uuid.Parse(chi.URLParam(r, "appId"))
+	if err != nil {
+		return httpx.UnprocessableEntity()
+	}
+
+	var targetApp models.Application
+
+	txFn := func(tx *gorm.DB) error {
+		if err := tx.Where(&models.Application{UserID: targetUser.ID, ID: appId}).First(&targetApp).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return httpx.NotFound()
+			}
+			return err
+		}
+
+		if err := tx.Delete(&targetApp).Error; err != nil {
+			return err
+		}
+
+		return tx.
+			Model(&models.Application{}).
+			Where(&models.Application{UserID: targetUser.ID}).
+			Where(gorm.Expr("priority > ?", targetApp.Priority)).
+			UpdateColumn("priority", gorm.Expr("priority - 1")).
+			Error
+	}
+
+	if err := h.db.Transaction(txFn); err != nil {
+		return err
+	}
+
+	if err := h.db.Transaction(txFn); err != nil {
+		return err
+	}
+
+	return writer.JSON(w, http.StatusOK, targetApp)
 }
