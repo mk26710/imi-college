@@ -135,10 +135,10 @@ type DictEduLevel struct {
 }
 
 type DictNationality struct {
-	ID           int            `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
-	Value        string         `gorm:"not null;" json:"value"`
-	DisplayValue sql.NullString `json:"displayValue"`
-	SortPriority int            `gorm:"not null;default:0;" json:"sortPriority"`
+	ID           int     `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
+	SortPriority int     `gorm:"not null;default:0;" json:"sortPriority"`
 }
 
 type DictRegion struct {
