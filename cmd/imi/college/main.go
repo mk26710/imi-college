@@ -59,6 +59,7 @@ func main() {
 			r.Get("/appstatuses", httpx.APIHandler(h.Dictionaries.ReadAppStatuses))
 			r.Get("/iddoctypes", httpx.APIHandler(h.Dictionaries.ReadIdDocTypes))
 			r.Get("/edudoctypes", httpx.APIHandler(h.Dictionaries.ReadEduDocTypes))
+			r.Get("/nationalities", httpx.APIHandler(h.Dictionaries.ReadNationalities))
 		})
 	})
 

@@ -108,3 +108,15 @@ func (h *DictionariesHandler) ReadEduDocTypes(w http.ResponseWriter, r *http.Req
 	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
 	return writer.JSON(w, http.StatusOK, data)
 }
+
+// GET /dictionaries/nationalities
+func (h *DictionariesHandler) ReadNationalities(w http.ResponseWriter, r *http.Request) error {
+	var data []models.DictNationality
+
+	if err := h.db.Model(models.DictNationality{}).Find(&data).Error; err != nil {
+		return err
+	}
+
+	writer.SetCacheControlSWR(w, 24*time.Hour, 6*time.Hour)
+	return writer.JSON(w, http.StatusOK, data)
+}
