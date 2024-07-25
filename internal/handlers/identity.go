@@ -32,7 +32,7 @@ func (h *IdentityDocsHanlder) Read(w http.ResponseWriter, r *http.Request) error
 
 	var docs []models.IdentityDoc
 
-	if err := h.db.Where(models.IdentityDoc{UserID: targetUser.ID}).Find(&docs).Error; err != nil {
+	if err := h.db.Where(models.IdentityDoc{UserID: targetUser.ID}).Joins("Type").Joins("Nationality").Joins("Status").Find(&docs).Error; err != nil {
 		return err
 	}
 
