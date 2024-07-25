@@ -7,10 +7,10 @@ import (
 	"imi/college/internal/httpx"
 	"imi/college/internal/models"
 	"imi/college/internal/permissions"
+	"imi/college/internal/types/date"
 	"imi/college/internal/validation"
 	"imi/college/internal/writer"
 	"net/http"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
@@ -44,7 +44,7 @@ type CreateIdentityBody struct {
 	Series        string    `json:"series" validate:"required,gte=2"`
 	Number        string    `json:"number" validate:"required,gte=2"`
 	Issuer        string    `json:"issuer" validate:"required,gte=2"`
-	IssuedAt      time.Time `json:"issuedAt" validate:"required"`
+	IssuedAt      date.Date `json:"issuedAt" validate:"required"`
 	DivisionCode  string    `json:"divisionCode" validate:"required,gte=2"`
 	NationalityID int       `json:"nationalityId" validate:"required"`
 }

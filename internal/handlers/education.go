@@ -6,10 +6,10 @@ import (
 	"imi/college/internal/httpx"
 	"imi/college/internal/models"
 	"imi/college/internal/permissions"
+	"imi/college/internal/types/date"
 	"imi/college/internal/validation"
 	"imi/college/internal/writer"
 	"net/http"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	"gorm.io/gorm"
@@ -43,7 +43,7 @@ type EducationDocBody struct {
 	Series         string    `json:"series" validate:"required"`
 	Number         string    `json:"number" validate:"required"`
 	Issuer         string    `json:"issuer" validate:"required"`
-	IssuedAt       time.Time `json:"issuedAt" validate:"required"`
+	IssuedAt       date.Date `json:"issuedAt" validate:"required"`
 	GradYear       int16     `json:"gradYear" validate:"required"`
 	IssuerRegionID int       `json:"issuerRegionId" validate:"required"`
 }

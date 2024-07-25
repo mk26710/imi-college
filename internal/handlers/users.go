@@ -7,10 +7,10 @@ import (
 	"imi/college/internal/httpx"
 	"imi/college/internal/models"
 	"imi/college/internal/permissions"
+	"imi/college/internal/types/date"
 	"imi/college/internal/validation"
 	"imi/college/internal/writer"
 	"net/http"
-	"time"
 
 	"github.com/go-playground/validator/v10"
 	"golang.org/x/crypto/bcrypt"
@@ -25,7 +25,7 @@ type CreateUserBody struct {
 	FirstName  string    `json:"firstName" validate:"required,gte=2"`
 	MiddleName string    `json:"middleName" validate:"required,gte=2"`
 	LastName   *string   `json:"lastName" validate:"omitnil,gte=2"`
-	Birthday   time.Time `json:"birthday" validate:"required"`
+	Birthday   date.Date `json:"birthday" validate:"required"`
 	GenderID   int       `json:"genderId" validate:"required"`
 	UserName   string    `json:"username" validate:"required,gte=4,lte=20,username"`
 	Password   string    `json:"password" validate:"required,gte=6,lte=72"`
@@ -132,7 +132,7 @@ type UpdateUserDetailsBody struct {
 	FirstName  string    `json:"firstName" validate:"required,gte=2"`
 	MiddleName string    `json:"middleName" validate:"required,gte=2"`
 	LastName   *string   `json:"lastName" validate:"omitnil,gte=2"`
-	Birthday   time.Time `json:"birthday" validate:"required"`
+	Birthday   date.Date `json:"birthday" validate:"required"`
 	GenderID   int       `json:"genderId" validate:"required"`
 	Tel        string    `json:"tel" validate:"required,e164"`
 	SNILS      string    `json:"snils" validate:"required,gte=2"`

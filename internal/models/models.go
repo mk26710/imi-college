@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"imi/college/internal/types/date"
 	"time"
 
 	"github.com/google/uuid"
@@ -67,7 +68,7 @@ type UserDetails struct {
 	LastName   *string    `json:"lastName"`
 	Gender     DictGender `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 	GenderID   int        `gorm:"not null;" json:"genderId"`
-	Birthday   time.Time  `gorm:"not null;type:date;" json:"birthday"`
+	Birthday   date.Date  `gorm:"not null;type:date;" json:"birthday"`
 	Tel        string     `gorm:"not null;" json:"tel"`
 	SNILS      *string    `json:"snils"`
 	NeedsDorm  bool       `gorm:"not null;default:false;" json:"needsDorm"`
@@ -190,7 +191,7 @@ type IdentityDoc struct {
 	Series        string          `gorm:"not null;" json:"series"`
 	Number        string          `gorm:"not null;" json:"number"`
 	Issuer        string          `gorm:"not null;" json:"issuer"`
-	IssuedAt      time.Time       `gorm:"not null;type:date;" json:"issuedAt"`
+	IssuedAt      date.Date       `gorm:"not null;type:date;" json:"issuedAt"`
 	DivisionCode  string          `gorm:"not null;" json:"divisionCode"`
 	NationalityID int             `gorm:"not null;" json:"nationalityId"`
 	Nationality   DictNationality `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
@@ -208,7 +209,7 @@ type EducationDoc struct {
 	Series         string         `gorm:"not null;" json:"series"`
 	Number         string         `gorm:"not null;" json:"number"`
 	Issuer         string         `gorm:"not null;" json:"issuer"`
-	IssuedAt       time.Time      `gorm:"not null;type:date;" json:"issuedAt"`
+	IssuedAt       date.Date      `gorm:"not null;type:date;" json:"issuedAt"`
 	GradYear       int16          `gorm:"not null;" json:"gradYear"`
 	IssuerRegionID int            `gorm:"not null;" json:"issuerRegionId"`
 	IssuerRegion   DictRegion     `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
