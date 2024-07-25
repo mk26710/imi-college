@@ -81,18 +81,35 @@ func (h *IdentityDocsHanlder) Create(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	newIdentity := models.IdentityDoc{
-		UserID:        targetUser.ID,
-		TypeID:        body.TypeID,
-		Series:        body.Series,
-		Number:        body.Number,
-		Issuer:        body.Issuer,
-		IssuedAt:      body.IssuedAt,
-		DivisionCode:  body.DivisionCode,
-		NationalityID: body.NationalityID,
+	var newIdentity models.IdentityDoc
+
+	txFn := func(tx *gorm.DB) error {
+		var defaultStatus models.DocStatus
+
+		if err := tx.Where(&models.DocStatus{IsDefault: true}).First(&defaultStatus).Error; err != nil {
+			return httpx.BadRequest("Default document status is not present")
+		}
+
+		newIdentity = models.IdentityDoc{
+			UserID:        targetUser.ID,
+			StatusID:      defaultStatus.ID,
+			TypeID:        body.TypeID,
+			Series:        body.Series,
+			Number:        body.Number,
+			Issuer:        body.Issuer,
+			IssuedAt:      body.IssuedAt,
+			DivisionCode:  body.DivisionCode,
+			NationalityID: body.NationalityID,
+		}
+
+		if err := h.db.Create(&newIdentity).Error; err != nil {
+			return err
+		}
+
+		return nil
 	}
 
-	if err := h.db.Create(&newIdentity).Error; err != nil {
+	if err := h.db.Transaction(txFn); err != nil {
 		return err
 	}
 
