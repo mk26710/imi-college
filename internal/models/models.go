@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"imi/college/internal/types/date"
 	"time"
 
@@ -124,9 +123,9 @@ type DictEduDocType struct {
 }
 
 type DictIdDocType struct {
-	ID           int            `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
-	Value        string         `gorm:"not null;" json:"value"`
-	DisplayValue sql.NullString `json:"displayValue"`
+	ID           int     `gorm:"not null;primaryKey;autoIncrement:false;" json:"id"`
+	Value        string  `gorm:"not null;" json:"value"`
+	DisplayValue *string `json:"displayValue"`
 }
 
 type DictEduLevel struct {
@@ -194,7 +193,7 @@ type IdentityDoc struct {
 	IssuedAt      date.Date       `gorm:"not null;type:date;" json:"issuedAt"`
 	DivisionCode  string          `gorm:"not null;" json:"divisionCode"`
 	NationalityID int             `gorm:"not null;" json:"nationalityId"`
-	Nationality   DictNationality `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
+	Nationality   DictNationality `gorm:"not null;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"nationality"`
 }
 
 type EducationDoc struct {
